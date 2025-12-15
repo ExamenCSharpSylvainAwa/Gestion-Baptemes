@@ -1,0 +1,329 @@
+<div class="details-demande-page">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <p-card>
+      <p-skeleton height="200px" styleClass="mb-3"></p-skeleton>
+      <p-skeleton height="400px"></p-skeleton>
+    </p-card>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && demande" class="content-container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Détails de la demande</h1>
+        <p class="subtitle">{{ demande.reference }}</p>
+      </div>
+      <button pButton 
+              label="Retour" 
+              icon="pi pi-arrow-left"
+              routerLink="/citoyen/demandes"
+              class="p-button-outlined"></button>
+    </div>
+
+    <!-- Status Banner -->
+    <div class="status-banner" [ngClass]="'status-' + demande.statut">
+      <div class="status-icon">
+        <i class="pi" 
+           [ngClass]="{
+             'pi-clock': demande.statut === 'en_attente' || demande.statut === 'en_cours',
+             'pi-check-circle': demande.statut === 'valide' || demande.statut === 'pret',
+             'pi-times-circle': demande.statut === 'rejete'
+           }"></i>
+      </div>
+      <div class="status-content">
+        <p-tag [value]="demande.statut_label" 
+               [severity]="getStatutSeverity(demande.statut)"
+               styleClass="status-tag">
+        </p-tag>
+        <p class="status-message">
+          <span *ngIf="demande.statut === 'en_attente'">
+            Votre demande est en attente de traitement par la paroisse.
+          </span>
+          <span *ngIf="demande.statut === 'en_cours'">
+            Votre demande est en cours de vérification.
+          </span>
+          <span *ngIf="demande.statut === 'valide'">
+            Votre demande a été validée. L'extrait est en cours de génération.
+          </span>
+          <span *ngIf="demande.statut === 'pret'">
+            Votre extrait est prêt ! Vous pouvez le télécharger dès maintenant.
+          </span>
+          <span *ngIf="demande.statut === 'rejete'">
+            Votre demande a été rejetée. Voir le motif ci-dessous.
+          </span>
+        </p>
+      </div>
+      <div class="status-actions">
+        <button pButton 
+                label="Payer maintenant" 
+                icon="pi pi-wallet"
+                *ngIf="canPay()"
+                (click)="openPaiementDialog()"
+                class="p-button-warning"></button>
+        <button pButton 
+                label="Télécharger l'extrait" 
+                icon="pi pi-download"
+                *ngIf="canDownload()"
+                (click)="telechargerExtrait()"
+                class="p-button-success"></button>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Left Column -->
+      <div class="left-column">
+        <!-- Informations de la demande -->
+        <p-card header="Informations de la demande">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Référence</label>
+              <p>{{ demande.reference }}</p>
+            </div>
+            <div class="info-item">
+              <label>Date de demande</label>
+              <p>{{ demande.created_at | date:'dd/MM/yyyy à HH:mm' }}</p>
+            </div>
+            <div class="info-item">
+              <label>Paroisse</label>
+              <p>{{ demande.paroisse?.nom }}</p>
+            </div>
+            <div class="info-item" *ngIf="demande.paroisse?.mission">
+              <label>Mission</label>
+            <p>Méthode : {{ getMethodeLabel(demande.paiement?.methode ?? '') }}</p>
+            </div>
+          </div>
+
+          <p-divider></p-divider>
+
+          <h3 class="section-title">Personne recherchée</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Prénom(s)</label>
+              <p>{{ demande.prenoms_recherche }}</p>
+            </div>
+            <div class="info-item">
+              <label>Nom</label>
+              <p>{{ demande.nom_recherche }}</p>
+            </div>
+            <div class="info-item" *ngIf="demande.date_naissance_recherche">
+              <label>Date de naissance</label>
+              <p>{{ demande.date_naissance_recherche | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="info-item" *ngIf="demande.nom_pere_recherche">
+              <label>Nom du père</label>
+              <p>{{ demande.nom_pere_recherche }}</p>
+            </div>
+            <div class="info-item" *ngIf="demande.nom_mere_recherche">
+              <label>Nom de la mère</label>
+              <p>{{ demande.nom_mere_recherche }}</p>
+            </div>
+          </div>
+        </p-card>
+
+        <!-- Baptême trouvé -->
+        <p-card header="Baptême trouvé" *ngIf="demande.bapteme">
+          <div class="bapteme-card">
+            <div class="bapteme-header">
+              <i class="pi pi-bookmark"></i>
+              <h3>{{ demande.bapteme.prenoms }} {{ demande.bapteme.nom }}</h3>
+            </div>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Date de naissance</label>
+                <p>{{ demande.bapteme.date_naissance | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <div class="info-item">
+                <label>Date de baptême</label>
+                <p>{{ demande.bapteme.date_bapteme | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <div class="info-item">
+                <label>Lieu de naissance</label>
+                <p>{{ demande.bapteme.lieu_naissance }}</p>
+              </div>
+              <div class="info-item">
+                <label>Célébrant</label>
+                <p>{{ demande.bapteme.celebrant }}</p>
+              </div>
+            </div>
+          </div>
+        </p-card>
+
+        <!-- Rejet -->
+        <p-card header="Motif du rejet" *ngIf="demande.statut === 'rejete' && demande.motif_rejet">
+          <p-message severity="error" [text]="demande.motif_rejet"></p-message>
+          <p-divider></p-divider>
+          <p style="margin-bottom: 0;">
+            <strong>Que faire ?</strong><br>
+            Veuillez vérifier les informations et créer une nouvelle demande avec les bonnes données.
+          </p>
+        </p-card>
+      </div>
+
+      <!-- Right Column -->
+      <div class="right-column">
+        <!-- Paiement -->
+        <p-card header="Paiement">
+          <div class="payment-summary">
+            <div class="payment-row">
+              <span>Montant</span>
+              <strong class="amount">{{ demande.montant_formatte }}</strong>
+            </div>
+            <p-divider></p-divider>
+            
+            <div *ngIf="isPaid()" class="payment-status paid">
+              <i class="pi pi-check-circle"></i>
+              <div>
+                <strong>Paiement effectué</strong>
+                <p>Méthode : {{ getMethodeLabel(demande.paiement!.methode) }}</p>
+                <p *ngIf="demande.paiement?.reference">
+                <small>Réf: {{ demande.paiement?.reference }}</small>                </p>
+              </div>
+            </div>
+
+            <div *ngIf="!isPaid() && demande.statut !== 'rejete'" class="payment-status pending">
+              <i class="pi pi-clock"></i>
+              <div>
+                <strong>Paiement en attente</strong>
+                <p>Le paiement sera requis après validation de la demande</p>
+              </div>
+            </div>
+
+            <button pButton 
+                    label="Procéder au paiement" 
+                    icon="pi pi-wallet"
+                    *ngIf="canPay()"
+                    (click)="openPaiementDialog()"
+                    class="w-full p-button-warning mt-3"></button>
+          </div>
+        </p-card>
+
+        <!-- Extrait -->
+        <p-card header="Extrait de baptême" *ngIf="demande.extrait">
+          <div class="extrait-card">
+            <div class="extrait-icon">
+              <i class="pi pi-file-pdf"></i>
+            </div>
+            <div class="extrait-info">
+              <strong>Extrait certifié</strong>
+              <p>Numéro unique : {{ demande.extrait.numero_unique }}</p>
+              <p><small>Généré le {{ demande.extrait.date_generation | date:'dd/MM/yyyy à HH:mm' }}</small></p>
+            </div>
+            <button pButton 
+                    icon="pi pi-download" 
+                    (click)="telechargerExtrait()"
+                    class="p-button-rounded p-button-success"
+                    pTooltip="Télécharger"></button>
+          </div>
+          <p-divider></p-divider>
+          <p-message 
+            severity="info" 
+            text="Cet extrait est authentique et peut être vérifié via le QR code">
+          </p-message>
+        </p-card>
+
+        <!-- Timeline -->
+        <p-card header="Historique">
+          <p-timeline [value]="timelineEvents" align="left">
+            <ng-template pTemplate="content" let-event>
+              <div class="timeline-item">
+                <strong>{{ event.status }}</strong>
+                <p>{{ event.date | date:'dd/MM/yyyy à HH:mm' }}</p>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="marker" let-event>
+              <div class="timeline-marker" [style.background-color]="event.color">
+                <i [class]="event.icon"></i>
+              </div>
+            </ng-template>
+          </p-timeline>
+        </p-card>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog Paiement -->
+<p-dialog 
+  [(visible)]="showPaiementDialog" 
+  header="Procéder au paiement"
+  [modal]="true"
+  [style]="{width: '500px'}"
+  [dismissableMask]="true">
+  
+  <form [formGroup]="paiementForm" (ngSubmit)="submitPaiement()">
+    <p-message 
+      severity="info" 
+      text="Choisissez votre méthode de paiement et entrez votre numéro de téléphone"
+      styleClass="w-full mb-3">
+    </p-message>
+
+    <!-- Montant -->
+    <div class="payment-amount">
+      <label>Montant à payer</label>
+      <h2>{{ demande?.montant_formatte }}</h2>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Méthode de paiement -->
+    <div class="form-field">
+      <label>Méthode de paiement *</label>
+      <div class="payment-methods">
+        <div *ngFor="let method of methodePaiement" class="payment-method">
+          <p-radioButton 
+            [inputId]="method.value"
+            [value]="method.value"
+            formControlName="methode">
+          </p-radioButton>
+          <label [for]="method.value" class="method-label">
+            <i [class]="method.icon"></i>
+            <div>
+              <strong>{{ method.label }}</strong>
+              <p>{{ method.description }}</p>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Numéro de téléphone -->
+    <div class="form-field">
+      <label for="telephone">Numéro de téléphone *</label>
+      <div class="phone-input">
+        <span class="phone-prefix">+221</span>
+        <p-inputMask 
+          id="telephone"
+          formControlName="telephone"
+          mask="99 999 99 99"
+          placeholder="77 123 45 67"
+          styleClass="flex-1">
+        </p-inputMask>
+      </div>
+      <small class="p-error" *ngIf="telephone && telephone.invalid && telephone.touched">
+        <span *ngIf="telephone.errors?.['required']">Le numéro est requis</span>
+        <span *ngIf="telephone.errors?.['pattern']">Format invalide (ex: 77 123 45 67)</span>
+      </small>
+    </div>
+
+    <p-divider></p-divider>
+
+    <div class="dialog-actions">
+      <button pButton 
+              label="Annuler" 
+              type="button"
+              (click)="showPaiementDialog = false"
+              [disabled]="processingPayment"
+              class="p-button-text"></button>
+      <button pButton 
+              label="Payer" 
+              type="submit"
+              icon="pi pi-check"
+              [loading]="processingPayment"
+              [disabled]="paiementForm.invalid"
+              class="p-button-success"></button>
+    </div>
+  </form>
+</p-dialog>

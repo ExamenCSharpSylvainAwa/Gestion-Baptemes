@@ -1,0 +1,320 @@
+<div class="utilisateurs-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Gestion des utilisateurs</h1>
+      <p class="subtitle">Gérez les comptes utilisateurs de la plateforme</p>
+    </div>
+    <button pButton 
+            label="Nouvel utilisateur" 
+            icon="pi pi-plus"
+            (click)="openCreateDialog()"
+            class="p-button-success"></button>
+  </div>
+
+  <!-- Filters -->
+  <p-card styleClass="filter-card">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="search">Rechercher</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input pInputText 
+                 id="search"
+                 [(ngModel)]="searchTerm" 
+                 (keyup.enter)="onFilter()"
+                 placeholder="Nom, email, téléphone..."
+                 class="w-full" />
+        </span>
+      </div>
+
+      <div class="filter-group">
+        <label for="role">Rôle</label>
+        <p-dropdown 
+          id="role"
+          [(ngModel)]="roleFilter"
+          [options]="roleOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Tous les rôles"
+          (onChange)="onFilter()"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-group">
+        <label for="paroisse">Paroisse</label>
+        <p-dropdown 
+          id="paroisse"
+          [(ngModel)]="paroisseFilter"
+          [options]="paroisses"
+          optionLabel="nom"
+          optionValue="id"
+          placeholder="Toutes les paroisses"
+          [showClear]="true"
+          [filter]="true"
+          (onChange)="onFilter()"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-actions">
+        <button pButton 
+                label="Filtrer" 
+                icon="pi pi-filter"
+                (click)="onFilter()"
+                class="p-button-primary"></button>
+        <button pButton 
+                label="Réinitialiser" 
+                icon="pi pi-refresh"
+                (click)="roleFilter = null; paroisseFilter = null; searchTerm = ''; onFilter()"
+                class="p-button-outlined"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Table -->
+  <p-card styleClass="table-card">
+    <p-table 
+      [value]="utilisateurs" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      (onLazyLoad)="onPageChange($event)"
+      [first]="first"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} utilisateurs"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Rôle</th>
+          <th>Paroisse</th>
+          <th>Statut</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">
+                {{ user.name.charAt(0).toUpperCase() }}
+              </div>
+              <strong>{{ user.name }}</strong>
+            </div>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phone || 'N/A' }}</td>
+          <td>
+            <p-tag 
+              [value]="getRoleLabel(user.role)" 
+              [severity]="getRoleSeverity(user.role)">
+            </p-tag>
+          </td>
+          <td>{{ user.paroisse?.nom || 'N/A' }}</td>
+          <td>
+            <p-tag 
+              [value]="user.active ? 'Actif' : 'Inactif'" 
+              [severity]="user.active ? 'success' : 'danger'">
+            </p-tag>
+          </td>
+          <td class="action-buttons">
+            <!-- Modifier -->
+            <button pButton 
+                    icon="pi pi-pencil" 
+                    (click)="openEditDialog(user)"
+                    class="p-button-rounded p-button-text p-button-info"
+                    pTooltip="Modifier"></button>
+
+            <!-- Activer/Désactiver -->
+            <button pButton 
+                    [icon]="user.active ? 'pi pi-ban' : 'pi pi-check'" 
+                    (click)="toggleActive(user)"
+                    [class]="user.active ? 'p-button-rounded p-button-text p-button-warning' : 'p-button-rounded p-button-text p-button-success'"
+                    [pTooltip]="user.active ? 'Désactiver' : 'Activer'"></button>
+
+            <!-- Supprimer -->
+            <button pButton 
+                    icon="pi pi-trash" 
+                    (click)="deleteUser(user)"
+                    class="p-button-rounded p-button-text p-button-danger"
+                    pTooltip="Supprimer"></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="empty-message">
+            <div class="empty-state">
+              <i class="pi pi-users"></i>
+              <h3>Aucun utilisateur trouvé</h3>
+              <p>Commencez par créer un utilisateur</p>
+              <button pButton 
+                      label="Créer un utilisateur" 
+                      icon="pi pi-plus"
+                      (click)="openCreateDialog()"
+                      class="p-button-primary"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Dialog Création/Édition -->
+<p-dialog 
+  [(visible)]="showDialog" 
+  [header]="dialogTitle"
+  [modal]="true"
+  [style]="{width: '600px'}"
+  [dismissableMask]="true"
+  [closable]="!submitting">
+  
+  <form [formGroup]="utilisateurForm" (ngSubmit)="onSubmit()">
+    <!-- Nom complet -->
+    <div class="form-field">
+      <label for="name">Nom complet *</label>
+      <input pInputText 
+             id="name"
+             formControlName="name"
+             placeholder="Jean Baptiste DIOP"
+             class="w-full" />
+      <small class="p-error" *ngIf="name && name.invalid && name.touched">
+        <span *ngIf="name.errors?.['required']">Le nom est requis</span>
+        <span *ngIf="name.errors?.['minlength']">Minimum 3 caractères</span>
+      </small>
+    </div>
+
+    <!-- Email -->
+    <div class="form-field">
+      <label for="email">Email *</label>
+      <input pInputText 
+             id="email"
+             formControlName="email"
+             type="email"
+             placeholder="utilisateur@example.com"
+             class="w-full" />
+      <small class="p-error" *ngIf="email && email.invalid && email.touched">
+        <span *ngIf="email.errors?.['required']">L'email est requis</span>
+        <span *ngIf="email.errors?.['email']">Email invalide</span>
+      </small>
+    </div>
+
+    <!-- Téléphone -->
+    <div class="form-field">
+      <label for="phone">Téléphone *</label>
+      <div class="phone-input">
+        <span class="phone-prefix">+221</span>
+        <p-inputMask 
+          id="phone"
+          formControlName="phone"
+          mask="99 999 99 99"
+          placeholder="77 123 45 67"
+          styleClass="flex-1">
+        </p-inputMask>
+      </div>
+      <small class="p-error" *ngIf="phone && phone.invalid && phone.touched">
+        Le téléphone est requis
+      </small>
+    </div>
+
+    <!-- Rôle -->
+    <div class="form-field">
+      <label for="role">Rôle *</label>
+      <p-dropdown 
+        id="role"
+        formControlName="role"
+        [options]="roleOptionsForm"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Sélectionnez un rôle"
+        styleClass="w-full">
+      </p-dropdown>
+      <small class="p-error" *ngIf="role && role.invalid && role.touched">
+        Le rôle est requis
+      </small>
+    </div>
+
+    <!-- Paroisse (conditionnel) -->
+    <div class="form-field" *ngIf="needsParoisse()">
+      <label for="paroisse">Paroisse *</label>
+      <p-dropdown 
+        id="paroisse"
+        formControlName="paroisse_id"
+        [options]="paroisses"
+        optionLabel="nom"
+        optionValue="id"
+        placeholder="Sélectionnez une paroisse"
+        [filter]="true"
+        styleClass="w-full">
+      </p-dropdown>
+      <small class="p-error" *ngIf="paroisse_id && paroisse_id.invalid && paroisse_id.touched">
+        La paroisse est requise pour ce rôle
+      </small>
+    </div>
+
+    <!-- Mot de passe (création uniquement) -->
+    <div class="form-field" *ngIf="!editMode">
+      <label for="password">Mot de passe *</label>
+      <p-password 
+        id="password"
+        formControlName="password"
+        [toggleMask]="true"
+        [feedback]="true"
+        placeholder="••••••••"
+        styleClass="w-full"
+        inputStyleClass="w-full">
+      </p-password>
+      <small class="p-error" *ngIf="password && password.invalid && password.touched">
+        <span *ngIf="password.errors?.['required']">Le mot de passe est requis</span>
+        <span *ngIf="password.errors?.['minlength']">Minimum 8 caractères</span>
+      </small>
+    </div>
+
+    <!-- Confirmation mot de passe (création uniquement) -->
+    <div class="form-field" *ngIf="!editMode">
+      <label for="password_confirmation">Confirmer le mot de passe *</label>
+      <p-password 
+        id="password_confirmation"
+        formControlName="password_confirmation"
+        [toggleMask]="true"
+        [feedback]="false"
+        placeholder="••••••••"
+        styleClass="w-full"
+        inputStyleClass="w-full">
+      </p-password>
+      <small class="p-error" *ngIf="password_confirmation && password_confirmation.invalid && password_confirmation.touched">
+        <span *ngIf="password_confirmation.errors?.['required']">Confirmation requise</span>
+        <span *ngIf="password_confirmation.errors?.['passwordMismatch']">Les mots de passe ne correspondent pas</span>
+      </small>
+    </div>
+
+    <div class="dialog-actions">
+      <button pButton 
+              label="Annuler" 
+              type="button"
+              (click)="showDialog = false"
+              [disabled]="submitting"
+              class="p-button-text"></button>
+      <button pButton 
+              [label]="editMode ? 'Modifier' : 'Créer'" 
+              type="submit"
+              icon="pi pi-check"
+              [loading]="submitting"
+              [disabled]="utilisateurForm.invalid"
+              class="p-button-success"></button>
+    </div>
+  </form>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>

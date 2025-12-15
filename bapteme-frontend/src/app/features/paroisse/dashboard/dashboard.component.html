@@ -1,0 +1,147 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard-page">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Tableau de Bord Paroissial</h1>
+        <p>{{ authService.currentUser()?.paroisse?.nom }}</p>
+      </div>
+      <div class="header-actions">
+        <button pButton 
+                label="Nouveau Baptême" 
+                icon="pi pi-plus"
+                routerLink="/paroisse/baptemes/nouveau"
+                class="p-button-primary"></button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <p-card>
+        <div class="stat-card">
+          <div class="stat-icon baptemes">
+            <i class="pi pi-book"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.total_baptemes || 0 }}</h3>
+            <p>Total Baptêmes</p>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card>
+        <div class="stat-card">
+          <div class="stat-icon month">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.baptemes_mois || 0 }}</h3>
+            <p>Ce Mois</p>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card>
+        <div class="stat-card">
+          <div class="stat-icon pending">
+            <i class="pi pi-clock"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.demandes_en_attente || 0 }}</h3>
+            <p>Demandes en Attente</p>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card>
+        <div class="stat-card">
+          <div class="stat-icon processed">
+            <i class="pi pi-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.demandes_mois || 0 }}</h3>
+            <p>Demandes ce Mois</p>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <!-- Chart -->
+      <p-card header="Évolution des Baptêmes" class="chart-card">
+        <div class="chart-container">
+          <p-chart type="line" [data]="chartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <!-- Dernières Demandes -->
+      <p-card header="Dernières Demandes d'Extraits" class="table-card">
+        <p-table [value]="dernieresDemandes" [loading]="loading" styleClass="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Demandeur</th>
+              <th>Recherché</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-demande>
+            <tr>
+              <td>{{ demande.user?.name }}</td>
+              <td>{{ demande.prenoms_recherche }} {{ demande.nom_recherche }}</td>
+              <td>
+                <p-tag [value]="demande.statut_label" 
+                       [severity]="getStatutSeverity(demande.statut)"></p-tag>
+              </td>
+              <td>
+                <button pButton 
+                        icon="pi pi-eye" 
+                        [routerLink]="['/paroisse/demandes', demande.id]"
+                        class="p-button-text p-button-sm"></button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="4" class="text-center">Aucune demande récente</td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <div class="card-footer">
+          <button pButton 
+                  label="Voir toutes les demandes" 
+                  icon="pi pi-arrow-right"
+                  iconPos="right"
+                  routerLink="/paroisse/demandes"
+                  class="p-button-text"></button>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <p-card header="Actions Rapides">
+        <div class="actions-grid">
+          <button pButton 
+                  label="Enregistrer un Baptême" 
+                  icon="pi pi-plus-circle"
+                  routerLink="/paroisse/baptemes/nouveau"
+                  class="p-button-lg"></button>
+          <button pButton 
+                  label="Valider des Demandes" 
+                  icon="pi pi-check"
+                  routerLink="/paroisse/demandes"
+                  class="p-button-lg p-button-success"></button>
+          <button pButton 
+                  label="Consulter le Registre" 
+                  icon="pi pi-book"
+                  routerLink="/paroisse/baptemes"
+                  class="p-button-lg p-button-secondary"></button>
+        </div>
+      </p-card>
+    </div>
+  </div>
+</div>

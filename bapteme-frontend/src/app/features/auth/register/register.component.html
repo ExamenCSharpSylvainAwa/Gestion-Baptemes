@@ -1,0 +1,143 @@
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- Logo et titre -->
+      <div class="auth-header">
+        <i class="pi pi-bookmark logo-icon"></i>
+        <h1>Inscription</h1>
+        <p>Créez votre compte Baptême SN</p>
+      </div>
+
+      <!-- Formulaire -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+        
+        <!-- Nom complet -->
+        <div class="form-field">
+          <label for="name">Nom complet</label>
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-user"></i>
+            <input pInputText 
+                   id="name" 
+                   formControlName="name"
+                   placeholder="Jean Baptiste DIOP"
+                   class="w-full" />
+          </span>
+          <small class="p-error" *ngIf="name && name.invalid && name.touched">
+            <span *ngIf="name.errors?.['required']">Le nom est requis</span>
+            <span *ngIf="name.errors?.['minlength']">Minimum 3 caractères</span>
+          </small>
+        </div>
+
+        <!-- Email -->
+        <div class="form-field">
+          <label for="email">Email</label>
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-envelope"></i>
+            <input pInputText 
+                   id="email" 
+                   formControlName="email"
+                   type="email"
+                   placeholder="votre@email.com"
+                   class="w-full" />
+          </span>
+          <small class="p-error" *ngIf="email && email.invalid && email.touched">
+            <span *ngIf="email.errors?.['required']">L'email est requis</span>
+            <span *ngIf="email.errors?.['email']">Email invalide</span>
+          </small>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="form-field">
+          <label for="phone">Téléphone</label>
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-phone"></i>
+            <p-inputMask 
+              id="phone"
+              formControlName="phone"
+              mask="99 999 99 99"
+              placeholder="77 123 45 67"
+              styleClass="w-full">
+            </p-inputMask>
+          </span>
+          <small class="p-error" *ngIf="phone && phone.invalid && phone.touched">
+            Le téléphone est requis
+          </small>
+        </div>
+
+        <!-- Mot de passe -->
+        <div class="form-field">
+          <label for="password">Mot de passe</label>
+          <p-password id="password"
+                      formControlName="password"
+                      [toggleMask]="true"
+                      [feedback]="true"
+                      placeholder="••••••••"
+                      styleClass="w-full"
+                      inputStyleClass="w-full"
+                      [style]="{'width': '100%'}"
+                      [strongRegex]="'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})'">
+            <ng-template pTemplate="header">
+              <h6 style="margin: 0.5rem 0;">Choisissez un mot de passe fort</h6>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <p class="password-hint-title">Suggestions:</p>
+              <ul class="password-hints">
+                <li>Au moins une minuscule</li>
+                <li>Au moins une majuscule</li>
+                <li>Au moins un chiffre</li>
+                <li>Minimum 8 caractères</li>
+              </ul>
+            </ng-template>
+          </p-password>
+          <small class="p-error" *ngIf="password && password.invalid && password.touched">
+            <span *ngIf="password.errors?.['required']">Le mot de passe est requis</span>
+            <span *ngIf="password.errors?.['minlength']">Minimum 8 caractères</span>
+          </small>
+        </div>
+
+        <!-- Confirmation mot de passe -->
+        <div class="form-field">
+          <label for="password_confirmation">Confirmer le mot de passe</label>
+          <p-password id="password_confirmation"
+                      formControlName="password_confirmation"
+                      [toggleMask]="true"
+                      [feedback]="false"
+                      placeholder="••••••••"
+                      styleClass="w-full"
+                      inputStyleClass="w-full"
+                      [style]="{'width': '100%'}">
+          </p-password>
+          <small class="p-error" *ngIf="password_confirmation && password_confirmation.invalid && password_confirmation.touched">
+            <span *ngIf="password_confirmation.errors?.['required']">Confirmation requise</span>
+            <span *ngIf="password_confirmation.errors?.['passwordMismatch']">Les mots de passe ne correspondent pas</span>
+          </small>
+        </div>
+
+        <!-- Bouton d'inscription -->
+        <button pButton 
+                type="submit"
+                label="Créer mon compte" 
+                icon="pi pi-user-plus"
+                [loading]="loading"
+                [disabled]="registerForm.invalid"
+                class="w-full p-button-lg p-button-primary btn-submit"></button>
+
+        <!-- Lien connexion -->
+        <div class="auth-footer">
+          <p>
+            Déjà inscrit ?
+            <a routerLink="/auth/login" class="link-primary">Se connecter</a>
+          </p>
+        </div>
+      </form>
+
+      <!-- Retour à l'accueil -->
+      <div class="back-home">
+        <a routerLink="/home">
+          <i class="pi pi-arrow-left"></i>
+          Retour à l'accueil
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,166 @@
+<div class="bapteme-detail-page">
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <p-card>
+      <p-skeleton height="150px" styleClass="mb-3"></p-skeleton>
+      <p-skeleton height="400px"></p-skeleton>
+    </p-card>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && bapteme" class="content-container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Détails du baptême</h1>
+        <p class="subtitle">
+          N° {{ bapteme.numero_ordre }}/{{ bapteme.annee_enregistrement }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <button pButton 
+                label="Retour" 
+                icon="pi pi-arrow-left"
+                routerLink="/paroisse/baptemes"
+                class="p-button-outlined"></button>
+        <button pButton 
+                label="Modifier" 
+                icon="pi pi-pencil"
+                (click)="editBapteme()"
+                class="p-button-primary"></button>
+        <button pButton 
+                label="Supprimer" 
+                icon="pi pi-trash"
+                (click)="deleteBapteme()"
+                class="p-button-danger"></button>
+      </div>
+    </div>
+
+    <!-- Main Info Card -->
+    <p-card styleClass="main-info-card">
+      <div class="bapteme-header">
+        <div class="avatar">
+          <i class="pi pi-user"></i>
+        </div>
+        <div class="bapteme-identity">
+          <h2>{{ bapteme.prenoms }} {{ bapteme.nom }}</h2>
+          <div class="identity-meta">
+            <p-tag [value]="bapteme.sexe === 'M' ? 'Masculin' : 'Féminin'" 
+                   [severity]="bapteme.sexe === 'M' ? 'info' : 'danger'"></p-tag>
+            <span class="age-badge" *ngIf="getAge()">{{ getAge() }} ans</span>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Info Grid -->
+      <div class="info-section">
+        <h3><i class="pi pi-calendar"></i> Informations de naissance</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Date de naissance</label>
+            <p>{{ bapteme.date_naissance | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Lieu de naissance</label>
+            <p>{{ bapteme.lieu_naissance }}</p>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Parents -->
+      <div class="info-section">
+        <h3><i class="pi pi-users"></i> Parents</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Père</label>
+            <p>{{ bapteme.nom_pere }}</p>
+          </div>
+          <div class="info-item">
+            <label>Mère</label>
+            <p>{{ bapteme.nom_mere }}</p>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Baptême -->
+      <div class="info-section">
+        <h3><i class="pi pi-bookmark"></i> Informations du baptême</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Date du baptême</label>
+            <p>{{ bapteme.date_bapteme | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Célébrant</label>
+            <p>{{ bapteme.celebrant }}</p>
+          </div>
+          <div class="info-item" *ngIf="bapteme.nom_parrain">
+            <label>Parrain</label>
+            <p>{{ bapteme.nom_parrain }}</p>
+            <small *ngIf="bapteme.representant_parrain">
+              Représenté par : {{ bapteme.representant_parrain }}
+            </small>
+          </div>
+          <div class="info-item" *ngIf="bapteme.nom_marraine">
+            <label>Marraine</label>
+            <p>{{ bapteme.nom_marraine }}</p>
+            <small *ngIf="bapteme.representante_marraine">
+              Représentée par : {{ bapteme.representante_marraine }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sacrements ultérieurs -->
+      <div *ngIf="bapteme.date_confirmation || bapteme.date_mariage">
+        <p-divider></p-divider>
+        <div class="info-section">
+          <h3><i class="pi pi-check-circle"></i> Sacrements ultérieurs</h3>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="bapteme.date_confirmation">
+              <label>Confirmation</label>
+              <p>{{ bapteme.date_confirmation | date:'dd/MM/yyyy' }}</p>
+              <small *ngIf="bapteme.lieu_confirmation">
+                Lieu : {{ bapteme.lieu_confirmation }}
+              </small>
+            </div>
+            <div class="info-item" *ngIf="bapteme.date_mariage">
+              <label>Mariage</label>
+              <p>{{ bapteme.date_mariage | date:'dd/MM/yyyy' }}</p>
+              <small *ngIf="bapteme.conjoint">
+                Conjoint(e) : {{ bapteme.conjoint }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Metadata -->
+      <div class="metadata">
+        <div class="meta-item">
+          <i class="pi pi-building"></i>
+          <span>Paroisse : {{ bapteme.paroisse?.nom }}</span>
+        </div>
+       <div class="meta-item" *ngIf="$any(bapteme).created_by">
+        <i class="pi pi-user"></i>
+        <span>Enregistré par : {{ $any(bapteme).created_by.name }}</span>
+        </div>
+
+        <div class="meta-item">
+          <i class="pi pi-clock"></i>
+          <span>Créé le : {{ bapteme.created_at | date:'dd/MM/yyyy à HH:mm' }}</span>
+        </div>
+      </div>
+    </p-card>
+  </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>

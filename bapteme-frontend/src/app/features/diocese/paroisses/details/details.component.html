@@ -1,0 +1,363 @@
+<div class="paroisse-details-page">
+  
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <p-skeleton height="200px" styleClass="mb-3"></p-skeleton>
+    <p-skeleton height="400px"></p-skeleton>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && paroisse" class="content-container">
+    
+    <!-- Header -->
+    <div class="page-header">
+      <button pButton 
+              icon="pi pi-arrow-left" 
+              (click)="goBack()"
+              class="p-button-text p-button-plain back-button"
+              label="Retour"></button>
+    </div>
+
+    <!-- Paroisse Info Card -->
+    <p-card styleClass="paroisse-info-card">
+      <div class="paroisse-header">
+        <div class="paroisse-avatar">
+          <p-avatar 
+            *ngIf="paroisse.logo_url"
+            [image]="paroisse.logo_url"
+            size="xlarge"
+            shape="circle">
+          </p-avatar>
+          <p-avatar 
+            *ngIf="!paroisse.logo_url"
+            [label]="paroisse.nom.charAt(0)"
+            size="xlarge"
+            shape="circle"
+            [style]="{'background-color':'#1e40af', 'color': '#ffffff', 'font-size': '3rem'}">
+          </p-avatar>
+        </div>
+
+        <div class="paroisse-info">
+          <h1>{{ paroisse.nom }}</h1>
+          <p class="mission" *ngIf="paroisse.mission">
+            <i class="pi pi-building"></i>
+            {{ paroisse.mission }}
+          </p>
+          <div class="tags">
+            <p-tag value="Active" severity="success" icon="pi pi-check"></p-tag>
+            <p-tag *ngIf="paroisse.diocese" [value]="paroisse.diocese.nom" severity="info"></p-tag>
+          </div>
+        </div>
+
+        <div class="paroisse-actions">
+          <button pButton 
+                  label="Modifier" 
+                  icon="pi pi-pencil"
+                  (click)="openEditDialog()"
+                  class="p-button-outlined"></button>
+          <button pButton 
+                  label="Exporter" 
+                  icon="pi pi-download"
+                  (click)="exportData()"
+                  class="p-button-outlined"></button>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <div class="contact-grid">
+        <div class="contact-item" *ngIf="paroisse.adresse">
+          <i class="pi pi-map-marker"></i>
+          <div>
+            <label>Adresse</label>
+            <p>{{ paroisse.adresse }}</p>
+          </div>
+        </div>
+
+        <div class="contact-item" *ngIf="paroisse.telephone">
+          <i class="pi pi-phone"></i>
+          <div>
+            <label>Téléphone</label>
+            <p>{{ paroisse.telephone }}</p>
+          </div>
+        </div>
+
+        <div class="contact-item" *ngIf="paroisse.email">
+          <i class="pi pi-envelope"></i>
+          <div>
+            <label>Email</label>
+            <p>{{ paroisse.email }}</p>
+          </div>
+        </div>
+
+        <div class="contact-item" *ngIf="paroisse.bp">
+          <i class="pi pi-inbox"></i>
+          <div>
+            <label>Boîte postale</label>
+            <p>{{ paroisse.bp }}</p>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" *ngIf="!loadingStats && stats">
+      <div class="stat-card baptemes">
+        <div class="stat-icon">
+          <i class="pi pi-bookmark"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Total baptêmes</p>
+          <h2 class="stat-value">{{ stats.total_baptemes | number }}</h2>
+          <p class="stat-info">{{ stats.baptemes_annee_courante }} cette année</p>
+        </div>
+      </div>
+
+      <div class="stat-card demandes">
+        <div class="stat-icon">
+          <i class="pi pi-file"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Demandes</p>
+          <h2 class="stat-value">{{ stats.total_demandes | number }}</h2>
+          <p class="stat-info">{{ stats.demandes_en_attente }} en attente</p>
+        </div>
+      </div>
+
+      <div class="stat-card traitement">
+        <div class="stat-icon">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Traitées</p>
+          <h2 class="stat-value">{{ stats.demandes_traitees | number }}</h2>
+          <p class="stat-info">
+            {{ (stats.demandes_traitees / stats.total_demandes * 100 | number:'1.0-0') }}% du total
+          </p>
+        </div>
+      </div>
+
+      <div class="stat-card delai">
+        <div class="stat-icon">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Délai moyen</p>
+          <h2 class="stat-value">{{ stats.delai_moyen || 'N/A' }}</h2>
+          <p class="stat-info">Heures de traitement</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Stats -->
+    <div class="stats-grid" *ngIf="loadingStats">
+      <p-skeleton *ngFor="let i of [1,2,3,4]" height="120px"></p-skeleton>
+    </div>
+
+    <!-- Tabs -->
+    <p-tabView styleClass="details-tabs">
+      
+      <!-- Onglet Statistiques -->
+      <p-tabPanel header="Statistiques" leftIcon="pi pi-chart-bar">
+        <div class="tab-content">
+          
+          <!-- Graphique -->
+          <p-card header="Évolution des baptêmes">
+            <div class="chart-container">
+              <p-chart 
+                type="line" 
+                [data]="baptemesMoisChart" 
+                [options]="chartOptions"
+                [style]="{'height': '350px'}">
+              </p-chart>
+            </div>
+          </p-card>
+
+          <!-- Indicateurs clés -->
+          <div class="indicators-grid">
+            <p-card header="Indicateurs clés">
+              <ul class="indicators-list">
+                <li>
+                  <i class="pi pi-chart-line"></i>
+                  <div>
+                    <strong>Moyenne mensuelle</strong>
+                    <p>{{ (stats?.baptemes_annee_courante! / 12 | number:'1.0-0') }} baptêmes</p>
+                  </div>
+                </li>
+                <li>
+                  <i class="pi pi-calendar-plus"></i>
+                  <div>
+                    <strong>Croissance annuelle</strong>
+                    <p>+12% par rapport à l'année précédente</p>
+                  </div>
+                </li>
+                <li>
+                  <i class="pi pi-users"></i>
+                  <div>
+                    <strong>Contribution au diocèse</strong>
+                    <p>8.5% du total diocésain</p>
+                  </div>
+                </li>
+              </ul>
+            </p-card>
+
+            <p-card header="Performance">
+              <div class="performance-score">
+                <div class="score-circle excellent">
+                  <span class="score">85</span>
+                  <span class="label">/ 100</span>
+                </div>
+                <p class="performance-text">Excellente performance</p>
+                <div class="performance-details">
+                  <div class="detail-item">
+                    <span class="bullet success"></span>
+                    <span>Délai de traitement optimal</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="bullet success"></span>
+                    <span>Taux de satisfaction élevé</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="bullet warning"></span>
+                    <span>Volume de demandes à surveiller</span>
+                  </div>
+                </div>
+              </div>
+            </p-card>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Onglet Baptêmes -->
+      <p-tabPanel header="Baptêmes récents" leftIcon="pi pi-bookmark">
+        <p-table 
+          [value]="stats?.derniers_baptemes || []" 
+          [paginator]="true"
+          [rows]="10"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-sm">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th>N° Ordre</th>
+              <th>Nom complet</th>
+              <th>Date baptême</th>
+              <th>Célébrant</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-bapteme>
+            <tr>
+              <td>{{ bapteme.numero_ordre }}/{{ bapteme.annee_enregistrement }}</td>
+              <td>
+                <strong>{{ bapteme.prenoms }} {{ bapteme.nom }}</strong>
+              </td>
+              <td>{{ bapteme.date_bapteme | date:'dd/MM/yyyy' }}</td>
+              <td>{{ bapteme.celebrant }}</td>
+              <td class="text-center">
+                <button pButton 
+                        icon="pi pi-eye" 
+                        class="p-button-rounded p-button-text p-button-info"
+                        pTooltip="Voir détails"></button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="text-center">
+                <p style="padding: 2rem;">Aucun baptême enregistré</p>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+
+      <!-- Onglet Demandes -->
+      <p-tabPanel header="Demandes" leftIcon="pi pi-file">
+        <p-table 
+          [value]="stats?.dernieres_demandes || []" 
+          [paginator]="true"
+          [rows]="10"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-sm">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Référence</th>
+              <th>Demandeur</th>
+              <th>Statut</th>
+              <th>Date</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-demande>
+            <tr>
+              <td>
+                <strong>{{ demande.reference }}</strong>
+              </td>
+              <td>{{ demande.user?.name }}</td>
+              <td>
+                <p-tag 
+                  [value]="demande.statut_label" 
+                  [severity]="getStatutSeverity(demande.statut)">
+                </p-tag>
+              </td>
+              <td>{{ demande.created_at | date:'dd/MM/yyyy' }}</td>
+              <td class="text-center">
+                <button pButton 
+                        icon="pi pi-eye" 
+                        class="p-button-rounded p-button-text p-button-info"
+                        pTooltip="Voir détails"></button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="text-center">
+                <p style="padding: 2rem;">Aucune demande</p>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+
+      <!-- Onglet Utilisateurs -->
+      <p-tabPanel header="Équipe" leftIcon="pi pi-users">
+        <div class="team-content">
+          <p-card header="Responsables de la paroisse">
+            <p class="info-message">
+              <i class="pi pi-info-circle"></i>
+              Fonctionnalité en cours de développement
+            </p>
+          </p-card>
+        </div>
+      </p-tabPanel>
+
+    </p-tabView>
+
+  </div>
+</div>
+
+<!-- Dialog Edit (placeholder) -->
+<p-dialog 
+  [(visible)]="showEditDialog" 
+  header="Modifier la paroisse"
+  [modal]="true"
+  [style]="{width: '600px'}">
+  
+  <p>Formulaire de modification à implémenter</p>
+
+  <ng-template pTemplate="footer">
+    <button pButton 
+            label="Annuler" 
+            (click)="showEditDialog = false"
+            class="p-button-text"></button>
+    <button pButton 
+            label="Enregistrer" 
+            class="p-button-primary"></button>
+  </ng-template>
+</p-dialog>

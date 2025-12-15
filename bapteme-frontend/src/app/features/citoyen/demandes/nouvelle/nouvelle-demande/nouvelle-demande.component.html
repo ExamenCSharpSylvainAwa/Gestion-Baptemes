@@ -1,0 +1,291 @@
+<div class="nouvelle-demande-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Nouvelle demande d'extrait</h1>
+      <p class="subtitle">Suivez les étapes pour créer votre demande</p>
+    </div>
+    <button pButton 
+            label="Retour" 
+            icon="pi pi-arrow-left"
+            routerLink="/citoyen/demandes"
+            class="p-button-outlined"></button>
+  </div>
+
+  <!-- Wizard Steps -->
+  <div class="wizard-container">
+    <p-steps [model]="items" 
+             [activeIndex]="activeIndex" 
+             [readonly]="true"
+             styleClass="wizard-steps">
+    </p-steps>
+
+    <!-- Step 1: Sélection Paroisse -->
+    <p-card *ngIf="activeIndex === 0" class="step-card">
+      <ng-template pTemplate="header">
+        <div class="step-header">
+          <i class="pi pi-map-marker"></i>
+          <h2>Choisissez la paroisse</h2>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="step1Form">
+        <p-message 
+          severity="info" 
+          text="Sélectionnez la paroisse où le baptême a eu lieu"
+          styleClass="mb-3 w-full">
+        </p-message>
+
+        <div class="form-field">
+          <label for="paroisse">Paroisse *</label>
+          <select 
+            id="paroisse"
+            formControlName="paroisse_id"
+            class="w-full">
+            <option [value]="null">Sélectionnez une paroisse</option>
+            <option *ngFor="let paroisse of paroisses" [value]="paroisse.id">
+              {{ paroisse.nom }}
+            </option>
+          </select>
+          <small class="p-error" *ngIf="paroisse_id && paroisse_id.invalid && paroisse_id.touched">
+            La paroisse est requise
+          </small>
+        </div>
+
+        <!-- Détails de la paroisse sélectionnée -->
+        <div class="paroisse-details" *ngIf="getSelectedParoisse() as paroisse">
+          <p-divider></p-divider>
+          <h3>Informations de la paroisse</h3>
+          <div class="details-grid">
+            <div class="detail-item" *ngIf="paroisse.mission">
+              <i class="pi pi-building"></i>
+              <div>
+                <label>Mission</label>
+                <p>{{ paroisse.mission }}</p>
+              </div>
+            </div>
+            <div class="detail-item" *ngIf="paroisse.adresse">
+              <i class="pi pi-map-marker"></i>
+              <div>
+                <label>Adresse</label>
+                <p>{{ paroisse.adresse }}</p>
+              </div>
+            </div>
+            <div class="detail-item" *ngIf="paroisse.telephone">
+              <i class="pi pi-phone"></i>
+              <div>
+                <label>Téléphone</label>
+                <p>{{ paroisse.telephone }}</p>
+              </div>
+            </div>
+            <div class="detail-item" *ngIf="paroisse.email">
+              <i class="pi pi-envelope"></i>
+              <div>
+                <label>Email</label>
+                <p>{{ paroisse.email }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <ng-template pTemplate="footer">
+        <div class="step-actions">
+          <div></div>
+          <button pButton 
+                  label="Suivant" 
+                  icon="pi pi-arrow-right"
+                  iconPos="right"
+                  (click)="nextStep()"
+                  [disabled]="step1Form.invalid"
+                  class="p-button-primary"></button>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- Step 2: Informations de recherche -->
+    <p-card *ngIf="activeIndex === 1" class="step-card">
+      <ng-template pTemplate="header">
+        <div class="step-header">
+          <i class="pi pi-user"></i>
+          <h2>Informations sur la personne baptisée</h2>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="step2Form">
+        <p-message 
+          severity="info" 
+          text="Renseignez les informations de la personne dont vous recherchez l'extrait de baptême"
+          styleClass="mb-3 w-full">
+        </p-message>
+
+        <!-- Prénom(s) -->
+        <div class="form-field">
+          <label for="prenoms">Prénom(s) *</label>
+          <input pInputText 
+                 id="prenoms"
+                 formControlName="prenoms_recherche"
+                 placeholder="Ex: Jean-Baptiste"
+                 class="w-full" />
+          <small class="p-error" *ngIf="prenoms_recherche && prenoms_recherche.invalid && prenoms_recherche.touched">
+            <span *ngIf="prenoms_recherche.errors?.['required']">Le(s) prénom(s) sont requis</span>
+            <span *ngIf="prenoms_recherche.errors?.['minlength']">Minimum 2 caractères</span>
+          </small>
+        </div>
+
+        <!-- Nom -->
+        <div class="form-field">
+          <label for="nom">Nom *</label>
+          <input pInputText 
+                 id="nom"
+                 formControlName="nom_recherche"
+                 placeholder="Ex: DIOP"
+                 class="w-full" />
+          <small class="p-error" *ngIf="nom_recherche && nom_recherche.invalid && nom_recherche.touched">
+            <span *ngIf="nom_recherche.errors?.['required']">Le nom est requis</span>
+            <span *ngIf="nom_recherche.errors?.['minlength']">Minimum 2 caractères</span>
+          </small>
+        </div>
+
+        <!-- Date de naissance -->
+        <div class="form-field">
+          <label for="dateNaissance">Date de naissance (optionnel)</label>
+          <input type="date"
+                 id="dateNaissance"
+                 formControlName="date_naissance_recherche"
+                 [max]="maxDate | date:'yyyy-MM-dd'"
+                 class="w-full" />
+          <small class="form-hint">La date de naissance aide à affiner la recherche</small>
+        </div>
+
+        <p-divider></p-divider>
+
+        <h3 class="section-title">Informations complémentaires (optionnel)</h3>
+        <p class="section-subtitle">Ces informations aident à identifier le bon baptême</p>
+
+        <!-- Nom du père -->
+        <div class="form-field">
+          <label for="nomPere">Nom du père</label>
+          <input pInputText 
+                 id="nomPere"
+                 formControlName="nom_pere_recherche"
+                 placeholder="Ex: Amadou DIOP"
+                 class="w-full" />
+        </div>
+
+        <!-- Nom de la mère -->
+        <div class="form-field">
+          <label for="nomMere">Nom de la mère</label>
+          <input pInputText 
+                 id="nomMere"
+                 formControlName="nom_mere_recherche"
+                 placeholder="Ex: Awa SARR"
+                 class="w-full" />
+        </div>
+      </form>
+
+      <ng-template pTemplate="footer">
+        <div class="step-actions">
+          <button pButton 
+                  label="Précédent" 
+                  icon="pi pi-arrow-left"
+                  (click)="previousStep()"
+                  class="p-button-outlined"></button>
+          <button pButton 
+                  label="Suivant" 
+                  icon="pi pi-arrow-right"
+                  iconPos="right"
+                  (click)="nextStep()"
+                  [disabled]="step2Form.invalid"
+                  class="p-button-primary"></button>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- Step 3: Vérification et confirmation -->
+    <p-card *ngIf="activeIndex === 2" class="step-card">
+      <ng-template pTemplate="header">
+        <div class="step-header">
+          <i class="pi pi-check-circle"></i>
+          <h2>Vérification de votre demande</h2>
+        </div>
+      </ng-template>
+
+      <p-message 
+        severity="warn" 
+        text="Veuillez vérifier attentivement les informations avant de soumettre votre demande"
+        styleClass="mb-3 w-full">
+      </p-message>
+
+      <div class="summary-section">
+        <h3>📍 Paroisse</h3>
+        <div class="summary-item" *ngIf="getSelectedParoisse() as paroisse">
+          <strong>{{ paroisse.nom }}</strong>
+          <p *ngIf="paroisse.mission">{{ paroisse.mission }}</p>
+          <p *ngIf="paroisse.adresse"><i class="pi pi-map-marker"></i> {{ paroisse.adresse }}</p>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <div class="summary-section">
+        <h3>👤 Personne recherchée</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <label>Prénom(s)</label>
+            <p>{{ step2Form.value.prenoms_recherche }}</p>
+          </div>
+          <div class="summary-item">
+            <label>Nom</label>
+            <p>{{ step2Form.value.nom_recherche }}</p>
+          </div>
+          <div class="summary-item" *ngIf="step2Form.value.date_naissance_recherche">
+            <label>Date de naissance</label>
+            <p>{{ step2Form.value.date_naissance_recherche | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="summary-item" *ngIf="step2Form.value.nom_pere_recherche">
+            <label>Nom du père</label>
+            <p>{{ step2Form.value.nom_pere_recherche }}</p>
+          </div>
+          <div class="summary-item" *ngIf="step2Form.value.nom_mere_recherche">
+            <label>Nom de la mère</label>
+            <p>{{ step2Form.value.nom_mere_recherche }}</p>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <div class="summary-section">
+        <h3>💰 Coût de la demande</h3>
+        <div class="price-box">
+          <div class="price-details">
+            <span>Extrait de baptême</span>
+            <strong class="price">5 000 FCFA</strong>
+          </div>
+          <p class="price-note">
+            <i class="pi pi-info-circle"></i>
+            Le paiement sera effectué après validation de la demande par la paroisse
+          </p>
+        </div>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <div class="step-actions">
+          <button pButton 
+                  label="Précédent" 
+                  icon="pi pi-arrow-left"
+                  (click)="previousStep()"
+                  class="p-button-outlined"
+                  [disabled]="submitting"></button>
+          <button pButton 
+                  label="Confirmer et soumettre" 
+                  icon="pi pi-check"
+                  (click)="onSubmit()"
+                  [loading]="submitting"
+                  class="p-button-success"></button>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

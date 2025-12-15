@@ -1,0 +1,181 @@
+<app-navbar></app-navbar>
+
+<div class="verification-page">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>🔍 Vérification d'extrait</h1>
+      <p class="subtitle">Vérifiez l'authenticité d'un extrait de baptême</p>
+    </div>
+
+    <!-- Search Form -->
+    <p-card class="search-card">
+      <div class="search-form">
+        <div class="input-group">
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-qrcode"></i>
+            <input 
+              pInputText 
+              [(ngModel)]="numeroUnique"
+              (keyup.enter)="verifier()"
+              placeholder="Entrez le numéro unique de l'extrait (ex: EXT-XXX-YYYYMMDD)"
+              class="w-full"
+              [disabled]="loading" />
+          </span>
+        </div>
+        <div class="button-group">
+          <button 
+            pButton 
+            label="Vérifier" 
+            icon="pi pi-search"
+            (click)="verifier()"
+            [loading]="loading"
+            [disabled]="!numeroUnique || loading"
+            class="p-button-primary"></button>
+          <button 
+            pButton 
+            label="Réinitialiser" 
+            icon="pi pi-refresh"
+            (click)="resetSearch()"
+            [disabled]="loading"
+            class="p-button-outlined"></button>
+        </div>
+      </div>
+      
+      <p-message 
+        severity="info" 
+        text="Le numéro unique se trouve au bas de votre extrait de baptême ou dans le QR code"
+        styleClass="mt-3">
+      </p-message>
+    </p-card>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <p-progressSpinner 
+        styleClass="custom-spinner"
+        strokeWidth="3"
+        animationDuration="1s">
+      </p-progressSpinner>
+      <p>Vérification en cours...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="result-card error-card" *ngIf="error && !loading">
+      <div class="result-icon error">
+        <i class="pi pi-times-circle"></i>
+      </div>
+      <h2>Extrait invalide</h2>
+      <p>{{ errorMessage }}</p>
+      <p-message 
+        severity="error" 
+        text="Cet extrait n'a pas pu être vérifié. Vérifiez le numéro et réessayez."
+        styleClass="mt-3">
+      </p-message>
+    </div>
+
+    <!-- Success State -->
+    <div class="result-card success-card" *ngIf="result && result.valide && !loading">
+      <div class="result-icon success">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <h2>✓ Extrait authentique</h2>
+      <p>Cet extrait est valide et a été généré par notre système</p>
+
+      <p-divider></p-divider>
+
+      <!-- Informations de l'extrait -->
+      <div class="info-section" *ngIf="result.extrait">
+        <h3>📄 Informations de l'extrait</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Numéro unique</label>
+            <p>{{ result.extrait.numero_unique }}</p>
+          </div>
+          <div class="info-item">
+            <label>Date de génération</label>
+            <p>{{ result.extrait.date_generation | date:'dd/MM/yyyy à HH:mm' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <p-divider *ngIf="result.bapteme"></p-divider>
+
+      <!-- Informations du baptisé -->
+      <div class="info-section" *ngIf="result.bapteme">
+        <h3>👤 Personne baptisée</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Nom complet</label>
+            <p><strong>{{ result.bapteme.prenoms }} {{ result.bapteme.nom }}</strong></p>
+          </div>
+          <div class="info-item">
+            <label>Date de naissance</label>
+            <p>{{ result.bapteme.date_naissance | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Date de baptême</label>
+            <p>{{ result.bapteme.date_bapteme | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="info-item" *ngIf="result.bapteme.paroisse">
+            <label>Paroisse</label>
+            <p>{{ result.bapteme.paroisse }}</p>
+          </div>
+        </div>
+      </div>
+
+      <p-divider *ngIf="result.paroisse"></p-divider>
+
+      <!-- Informations de la paroisse -->
+      <div class="info-section" *ngIf="result.paroisse">
+        <h3>⛪ Paroisse émettrice</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Paroisse</label>
+            <p>{{ result.paroisse.nom }}</p>
+          </div>
+          <div class="info-item" *ngIf="result.paroisse.diocese">
+            <label>Diocèse</label>
+            <p>{{ result.paroisse.diocese }}</p>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <p-message 
+        severity="success" 
+        text="Ce document est certifié authentique et peut être utilisé comme preuve officielle"
+        styleClass="mt-3">
+      </p-message>
+
+      <div class="action-buttons">
+        <button 
+          pButton 
+          label="Vérifier un autre extrait" 
+          icon="pi pi-refresh"
+          (click)="resetSearch()"
+          class="p-button-outlined"></button>
+      </div>
+    </div>
+
+    <!-- Initial State (Info) -->
+    <div class="info-box" *ngIf="!result && !loading && !error">
+      <div class="info-icon">
+        <i class="pi pi-info-circle"></i>
+      </div>
+      <h3>Comment vérifier un extrait ?</h3>
+      <ol>
+        <li>Localisez le numéro unique sur l'extrait (en bas du document)</li>
+        <li>Saisissez le numéro dans le champ ci-dessus</li>
+        <li>Cliquez sur "Vérifier"</li>
+        <li>Consultez les informations d'authenticité</li>
+      </ol>
+      <p class="help-text">
+        <i class="pi pi-question-circle"></i>
+        <strong>Astuce :</strong> Vous pouvez aussi scanner le QR code présent sur l'extrait avec votre smartphone
+      </p>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

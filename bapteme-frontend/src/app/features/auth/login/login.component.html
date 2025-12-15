@@ -1,0 +1,87 @@
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- Logo et titre -->
+      <div class="auth-header">
+        <i class="pi pi-bookmark logo-icon"></i>
+        <h1>Connexion</h1>
+        <p>Accédez à votre compte Baptême SN</p>
+      </div>
+
+      <!-- Formulaire -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <!-- Email -->
+        <div class="form-field">
+          <label for="email">Email</label>
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-envelope"></i>
+            <input pInputText 
+                   id="email" 
+                   formControlName="email"
+                   type="email"
+                   placeholder="votre@email.com"
+                   class="w-full" />
+          </span>
+          <small class="p-error" *ngIf="email && email.invalid && email.touched">
+            <span *ngIf="email.errors?.['required']">L'email est requis</span>
+            <span *ngIf="email.errors?.['email']">Email invalide</span>
+          </small>
+        </div>
+
+        <!-- Mot de passe -->
+        <div class="form-field">
+          <label for="password">Mot de passe</label>
+          <p-password id="password"
+                      formControlName="password"
+                      [toggleMask]="true"
+                      [feedback]="false"
+                      placeholder="••••••••"
+                      styleClass="w-full"
+                      inputStyleClass="w-full"
+                      [style]="{'width': '100%'}">
+          </p-password>
+          <small class="p-error" *ngIf="password && password.invalid && password.touched">
+            <span *ngIf="password.errors?.['required']">Le mot de passe est requis</span>
+            <span *ngIf="password.errors?.['minlength']">Minimum 6 caractères</span>
+          </small>
+        </div>
+
+        <!-- Remember me & Forgot password -->
+        <div class="form-options">
+          <div class="remember-me">
+            <p-checkbox formControlName="remember" 
+                        [binary]="true" 
+                        inputId="remember"></p-checkbox>
+            <label for="remember" class="remember-label">Se souvenir de moi</label>
+          </div>
+          <a routerLink="/auth/forgot-password" class="forgot-link">Mot de passe oublié ?</a>
+        </div>
+
+        <!-- Bouton de connexion -->
+        <button pButton 
+                type="submit"
+                label="Se connecter" 
+                icon="pi pi-sign-in"
+                [loading]="loading"
+                [disabled]="loginForm.invalid"
+                class="w-full p-button-lg p-button-primary btn-submit"></button>
+
+        <!-- Lien inscription -->
+        <div class="auth-footer">
+          <p>
+            Pas encore de compte ?
+            <a routerLink="/auth/register" class="link-primary">Créer un compte</a>
+          </p>
+        </div>
+      </form>
+
+      <!-- Retour à l'accueil -->
+      <div class="back-home">
+        <a routerLink="/home">
+          <i class="pi pi-arrow-left"></i>
+          Retour à l'accueil
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

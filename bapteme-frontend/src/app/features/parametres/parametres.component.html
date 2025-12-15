@@ -1,0 +1,131 @@
+<app-navbar></app-navbar>
+
+<div class="parametres-page">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>
+        <i class="pi pi-cog"></i>
+        Paramètres
+      </h1>
+    </div>
+
+    <!-- Tabs -->
+    <p-tabView>
+      <!-- Profil -->
+      <p-tabPanel header="Mon Profil" leftIcon="pi pi-user">
+        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="settings-form">
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="name">Nom complet *</label>
+              <input pInputText 
+                     id="name"
+                     formControlName="name"
+                     class="w-full" />
+              @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+                <small class="p-error">Le nom est requis</small>
+              }
+            </div>
+
+            <div class="form-field">
+              <label for="email">Email *</label>
+              <input pInputText 
+                     id="email"
+                     type="email"
+                     formControlName="email"
+                     class="w-full" />
+              @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
+                <small class="p-error">Email invalide</small>
+              }
+            </div>
+
+            <div class="form-field">
+              <label for="phone">Téléphone *</label>
+              <p-inputMask 
+                id="phone"
+                formControlName="phone"
+                mask="99 999 99 99"
+                placeholder="77 123 45 67"
+                styleClass="w-full">
+              </p-inputMask>
+              @if (profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched) {
+                <small class="p-error">Le téléphone est requis</small>
+              }
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button pButton 
+                    type="submit"
+                    label="Enregistrer les modifications" 
+                    icon="pi pi-check"
+                    [loading]="loadingProfile"
+                    [disabled]="profileForm.invalid"></button>
+          </div>
+        </form>
+      </p-tabPanel>
+
+      <!-- Mot de passe -->
+      <p-tabPanel header="Sécurité" leftIcon="pi pi-lock">
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="settings-form">
+          <div class="form-grid">
+            <div class="form-field full-width">
+              <label for="current_password">Mot de passe actuel *</label>
+              <p-password id="current_password"
+                          formControlName="current_password"
+                          [toggleMask]="true"
+                          [feedback]="false"
+                          placeholder="••••••••"
+                          styleClass="w-full"
+                          inputStyleClass="w-full">
+              </p-password>
+              @if (passwordForm.get('current_password')?.invalid && passwordForm.get('current_password')?.touched) {
+                <small class="p-error">Mot de passe actuel requis</small>
+              }
+            </div>
+
+            <div class="form-field full-width">
+              <label for="password">Nouveau mot de passe *</label>
+              <p-password id="password"
+                          formControlName="password"
+                          [toggleMask]="true"
+                          [feedback]="true"
+                          placeholder="••••••••"
+                          styleClass="w-full"
+                          inputStyleClass="w-full">
+              </p-password>
+              @if (passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched) {
+                <small class="p-error">Minimum 8 caractères</small>
+              }
+            </div>
+
+            <div class="form-field full-width">
+              <label for="password_confirmation">Confirmer le nouveau mot de passe *</label>
+              <p-password id="password_confirmation"
+                          formControlName="password_confirmation"
+                          [toggleMask]="true"
+                          [feedback]="false"
+                          placeholder="••••••••"
+                          styleClass="w-full"
+                          inputStyleClass="w-full">
+              </p-password>
+              @if (passwordForm.get('password_confirmation')?.errors?.['passwordMismatch'] && passwordForm.get('password_confirmation')?.touched) {
+                <small class="p-error">Les mots de passe ne correspondent pas</small>
+              }
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button pButton 
+                    type="submit"
+                    label="Changer le mot de passe" 
+                    icon="pi pi-lock"
+                    [loading]="loadingPassword"
+                    [disabled]="passwordForm.invalid"
+                    class="p-button-warning"></button>
+          </div>
+        </form>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-content">
+      <!-- Logo -->
+      <a routerLink="/home" class="navbar-brand">
+        <i class="pi pi-bookmark"></i>
+        <span>Baptême SN</span>
+      </a>
+
+      <!-- Menu Desktop -->
+      <div class="navbar-menu">
+        <ng-container *ngIf="authService.isAuthenticated(); else publicMenu">
+          <a [routerLink]="getDashboardLink()" 
+             routerLinkActive="active"
+             class="nav-link">
+            <i class="pi pi-home"></i>
+            Dashboard
+          </a>
+          <a routerLink="/verify" 
+             routerLinkActive="active"
+             class="nav-link">
+            <i class="pi pi-qrcode"></i>
+            Vérifier
+          </a>
+        </ng-container>
+        
+        <ng-template #publicMenu>
+          <a routerLink="/home" 
+             routerLinkActive="active"
+             class="nav-link">Accueil</a>
+          <a routerLink="/verify" 
+             routerLinkActive="active"
+             class="nav-link">Vérifier un extrait</a>
+        </ng-template>
+      </div>
+
+      <!-- Actions -->
+      <div class="navbar-actions">
+        <ng-container *ngIf="authService.isAuthenticated(); else authButtons">
+          <div class="user-menu">
+            <p-avatar [label]="(authService.currentUser()?.name || 'U').charAt(0).toUpperCase()" 
+                      styleClass="mr-2" 
+                      size="large" 
+                      [style]="{'background-color':'#1e40af', 'color': '#ffffff'}">
+            </p-avatar>
+            <div class="user-info">
+              <span class="user-name">{{ authService.currentUser()?.name }}</span>
+              <button pButton 
+                      label="Déconnexion" 
+                      icon="pi pi-sign-out"
+                      (click)="logout()"
+                      class="p-button-text p-button-sm p-button-danger"></button>
+            </div>
+          </div>
+        </ng-container>
+        
+        <ng-template #authButtons>
+          <button pButton 
+                  label="Connexion" 
+                  icon="pi pi-sign-in"
+                  routerLink="/auth/login"
+                  class="p-button-text"></button>
+          <button pButton 
+                  label="Inscription" 
+                  icon="pi pi-user-plus"
+                  routerLink="/auth/register"
+                  class="p-button-primary"></button>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</nav>

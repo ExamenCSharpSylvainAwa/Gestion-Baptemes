@@ -1,0 +1,230 @@
+<div class="validation-demandes-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <!-- ✅ NOUVEAU: Bouton retour -->
+      <button pButton 
+              icon="pi pi-arrow-left" 
+              (click)="goBack()"
+              class="p-button-text p-button-secondary back-button"
+              pTooltip="Retour au tableau de bord"></button>
+      <div>
+        <h1>Validation des demandes</h1>
+        <p class="subtitle">Gérez les demandes d'extraits de baptême de votre paroisse</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card urgent">
+      <div class="stat-icon">
+        <i class="pi pi-exclamation-circle"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">En attente</p>
+        <h2 class="stat-value">{{ stats.en_attente }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card progress">
+      <div class="stat-icon">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">En cours</p>
+        <h2 class="stat-value">{{ stats.en_cours }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card success">
+      <div class="stat-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Validées ce mois</p>
+        <h2 class="stat-value">{{ stats.valides_ce_mois }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <p-card styleClass="filter-card">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="search">Rechercher</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input pInputText 
+                 id="search"
+                 [(ngModel)]="searchTerm" 
+                 (keyup.enter)="onFilter()"
+                 placeholder="Référence, nom..."
+                 class="w-full" />
+        </span>
+      </div>
+
+      <div class="filter-group">
+        <label for="statut">Statut</label>
+        <p-dropdown 
+          id="statut"
+          [(ngModel)]="statutFilter"
+          [options]="statutOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Toutes les demandes"
+          (onChange)="onFilter()"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-actions">
+        <button pButton 
+                label="Filtrer" 
+                icon="pi pi-filter"
+                (click)="onFilter()"
+                class="p-button-primary"></button>
+        <button pButton 
+                label="Réinitialiser" 
+                icon="pi pi-refresh"
+                (click)="resetFilters()"
+                class="p-button-outlined"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Table -->
+  <p-card styleClass="table-card">
+    <p-table 
+      [value]="demandes" 
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      (onLazyLoad)="onPageChange($event)"
+      [first]="first"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} demandes"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 50px;"></th>
+          <th>Référence</th>
+          <th>Demandeur</th>
+          <th>Personne recherchée</th>
+          <th>Statut</th>
+          <th>Paiement</th>
+          <th>Date</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-demande>
+        <tr [ngClass]="getPriorityClass(demande)">
+          <!-- Priority indicator -->
+          <td>
+            <i class="pi pi-circle-fill priority-indicator" 
+               *ngIf="getPriorityClass(demande)"
+               [pTooltip]="getPriorityClass(demande) === 'priority-high' ? 'Urgent - Plus de 3 jours' : 'Attention - Plus de 1 jour'"></i>
+          </td>
+
+          <td>
+            <strong>{{ demande.reference }}</strong>
+          </td>
+
+          <td>
+            <div class="user-info">
+              <strong>{{ demande.user.name }}</strong>
+              <p class="user-contact">
+                <i class="pi pi-envelope"></i> {{ demande.user.email }}
+              </p>
+              <p class="user-contact" *ngIf="demande.user.phone">
+                <i class="pi pi-phone"></i> {{ demande.user.phone }}
+              </p>
+            </div>
+          </td>
+
+          <td>
+            <div class="recherche-info">
+              <strong>{{ demande.prenoms_recherche }} {{ demande.nom_recherche }}</strong>
+              <p *ngIf="demande.date_naissance_recherche">
+                <i class="pi pi-calendar"></i> {{ demande.date_naissance_recherche | date:'dd/MM/yyyy' }}
+              </p>
+            </div>
+          </td>
+
+          <td>
+            <p-tag 
+                [value]="demande.statut_label" 
+                [severity]="$any(getStatutSeverity(demande.statut))">
+            </p-tag>
+          </td>
+
+          <td>
+            <span *ngIf="isPaid(demande)" class="payment-badge paid">
+              <i class="pi pi-check-circle"></i> Payé
+            </span>
+            <span *ngIf="!isPaid(demande)" class="payment-badge pending">
+              <i class="pi pi-clock"></i> En attente
+            </span>
+          </td>
+
+          <td>
+            <span class="date-info">{{ demande.created_at | date:'dd/MM/yyyy' }}</span>
+            <p class="time-info">{{ demande.created_at | date:'HH:mm' }}</p>
+          </td>
+
+          <td class="action-buttons">
+            <!-- Traiter -->
+            <button pButton 
+                    icon="pi pi-pencil" 
+                    *ngIf="canProcess(demande)"
+                    (click)="processRequest(demande)"
+                    class="p-button-rounded p-button-warning"
+                    [pTooltip]="isPaid(demande) ? 'Traiter (Payé)' : 'Traiter la demande'"
+                    [class.paid-button]="isPaid(demande)">
+              <span *ngIf="isPaid(demande)" class="payment-indicator">💰</span>
+            </button>
+
+            <!-- Voir détails -->
+            <button pButton 
+                    icon="pi pi-eye" 
+                    (click)="viewDetails(demande)"
+                    class="p-button-rounded p-button-text p-button-info"
+                    pTooltip="Voir les détails"></button>
+
+            <!-- Badge urgent -->
+            <span *ngIf="getPriorityClass(demande) === 'priority-high'" 
+                  class="urgent-badge">
+              <i class="pi pi-exclamation-triangle"></i> URGENT
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="empty-message">
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <h3>Aucune demande à traiter</h3>
+              <p>Il n'y a actuellement aucune demande correspondant à vos critères.</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="8">
+            <p-skeleton height="40px"></p-skeleton>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

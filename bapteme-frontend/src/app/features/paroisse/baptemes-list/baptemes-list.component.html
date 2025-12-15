@@ -1,0 +1,196 @@
+<div class="baptemes-list-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <!-- Bouton retour -->
+      <button pButton 
+              icon="pi pi-arrow-left" 
+              routerLink="/paroisse/dashboard"
+              class="p-button-text p-button-plain back-button"
+              pTooltip="Retour au tableau de bord"
+              tooltipPosition="right"></button>
+      <div>
+        <h1>Registre des Baptêmes</h1>
+        <p class="subtitle">Consultez et gérez tous les baptêmes enregistrés</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button pButton 
+              label="Exporter PDF" 
+              icon="pi pi-file-pdf"
+              (click)="exportToPDF()"
+              class="p-button-outlined p-button-danger"></button>
+      <button pButton 
+              label="Exporter Excel" 
+              icon="pi pi-file-excel"
+              (click)="exportToExcel()"
+              class="p-button-outlined p-button-success"></button>
+      <button pButton 
+              label="Nouveau baptême" 
+              icon="pi pi-plus"
+              routerLink="/paroisse/baptemes/nouveau"
+              class="p-button-primary"></button>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <p-card styleClass="filter-card">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="search">Rechercher</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input pInputText 
+                 id="search"
+                 [(ngModel)]="searchTerm" 
+                 (keyup.enter)="onFilter()"
+                 placeholder="Nom, prénom..."
+                 class="w-full" />
+        </span>
+      </div>
+
+      <div class="filter-group">
+        <label for="annee">Année</label>
+        <p-dropdown 
+          id="annee"
+          [(ngModel)]="anneeFilter"
+          [options]="anneeOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Toutes les années"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-group">
+        <label for="sexe">Sexe</label>
+        <p-dropdown 
+          id="sexe"
+          [(ngModel)]="sexeFilter"
+          [options]="sexeOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Tous"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-actions">
+        <button pButton 
+                label="Filtrer" 
+                icon="pi pi-filter"
+                (click)="onFilter()"
+                class="p-button-primary"></button>
+        <button pButton 
+                label="Réinitialiser" 
+                icon="pi pi-refresh"
+                (click)="searchTerm = ''; anneeFilter = null; sexeFilter = null; onFilter()"
+                class="p-button-outlined"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Table -->
+  <p-card styleClass="table-card">
+    <p-table 
+      [value]="baptemes" 
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      (onLazyLoad)="onPageChange($event)"
+      [first]="first"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} baptêmes"
+      [rowsPerPageOptions]="[10, 20, 50, 100]"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th>N° Ordre</th>
+          <th>Année</th>
+          <th>Nom complet</th>
+          <th>Date naissance</th>
+          <th>Date baptême</th>
+          <th>Sexe</th>
+          <th>Parents</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-bapteme>
+        <tr>
+          <td>
+            <strong>{{ bapteme.numero_ordre }}</strong>
+          </td>
+          <td>{{ bapteme.annee_enregistrement }}</td>
+          <td>
+            <div class="nom-complet">
+              <strong>{{ bapteme.nom_complet }}</strong>
+            </div>
+          </td>
+          <td>{{ bapteme.date_naissance | date:'dd/MM/yyyy' }}</td>
+          <td>{{ bapteme.date_bapteme | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <p-tag 
+              [value]="bapteme.sexe === 'M' ? 'Masculin' : 'Féminin'" 
+              [severity]="bapteme.sexe === 'M' ? 'info' : 'warning'">
+            </p-tag>
+          </td>
+          <td>
+            <div class="parents-info">
+              <small><strong>Père:</strong> {{ bapteme.nom_pere }}</small>
+              <small><strong>Mère:</strong> {{ bapteme.nom_mere }}</small>
+            </div>
+          </td>
+          <td class="action-buttons">
+            <!-- Bouton Voir -->
+            <button pButton 
+                    icon="pi pi-eye" 
+                    (click)="navigateTo('/paroisse/baptemes/' + bapteme.id)"
+                    class="p-button-rounded p-button-text p-button-info"
+                    pTooltip="Voir les détails"
+                    tooltipPosition="top"></button>
+            
+            <!-- Bouton Modifier -->
+            <button pButton 
+                    icon="pi pi-pencil" 
+                    (click)="navigateTo('/paroisse/baptemes/' + bapteme.id + '/edit')"
+                    class="p-button-rounded p-button-text p-button-warning"
+                    pTooltip="Modifier"
+                    tooltipPosition="top"></button>
+            
+            <!-- Bouton Supprimer -->
+            <button pButton 
+                    icon="pi pi-trash" 
+                    (click)="confirmDelete(bapteme)"
+                    class="p-button-rounded p-button-text p-button-danger"
+                    pTooltip="Supprimer"
+                    tooltipPosition="top"></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="empty-message">
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <h3>Aucun baptême trouvé</h3>
+              <p>Commencez par enregistrer un baptême</p>
+              <button pButton 
+                      label="Enregistrer un baptême" 
+                      icon="pi pi-plus"
+                      routerLink="/paroisse/baptemes/nouveau"
+                      class="p-button-primary"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-confirmDialog></p-confirmDialog>

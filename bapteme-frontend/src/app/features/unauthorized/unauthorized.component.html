@@ -1,0 +1,25 @@
+<div class="unauthorized-page">
+  <div class="container">
+    <p-card>
+      <div class="content">
+        <div class="icon">
+          <i class="pi pi-ban"></i>
+        </div>
+        <h1>Accès non autorisé</h1>
+        <p>Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
+        <div class="actions">
+          <button pButton 
+                  label="Retour à l'accueil" 
+                  icon="pi pi-home"
+                  routerLink="/home"
+                  class="p-button-primary"></button>
+          <button pButton 
+                  label="Se connecter" 
+                  icon="pi pi-sign-in"
+                  routerLink="/auth/login"
+                  class="p-button-outlined"></button>
+        </div>
+      </div>
+    </p-card>
+  </div>
+</div>

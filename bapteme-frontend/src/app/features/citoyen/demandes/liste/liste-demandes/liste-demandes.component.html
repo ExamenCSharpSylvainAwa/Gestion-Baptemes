@@ -1,0 +1,190 @@
+<div class="demandes-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Mes demandes d'extraits</h1>
+      <p class="subtitle">Consultez et gérez toutes vos demandes</p>
+    </div>
+    <button pButton 
+            label="Nouvelle demande" 
+            icon="pi pi-plus"
+            routerLink="/citoyen/demandes/nouvelle"
+            class="p-button-success btn-new-demande"></button>
+  </div>
+
+  <!-- Filtres -->
+  <p-card styleClass="filter-card">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="search">Rechercher</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input pInputText 
+                 id="search"
+                 [(ngModel)]="searchTerm" 
+                 (keyup.enter)="onFilter()"
+                 placeholder="Rechercher par référence..."
+                 class="w-full" />
+        </span>
+      </div>
+
+      <div class="filter-group">
+        <label for="statut">Statut</label>
+        <p-dropdown 
+          id="statut"
+          [(ngModel)]="statutFilter"
+          [options]="statutOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Tous les statuts"
+          (onChange)="onFilter()"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-actions">
+        <button pButton 
+                label="Filtrer" 
+                icon="pi pi-filter"
+                (click)="onFilter()"
+                class="p-button-primary"></button>
+        <button pButton 
+                label="Réinitialiser" 
+                icon="pi pi-refresh"
+                (click)="statutFilter = null; searchTerm = ''; onFilter()"
+                class="p-button-outlined"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Table -->
+  <p-card styleClass="table-card">
+    <p-table 
+      [value]="demandes" 
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      (onLazyLoad)="onPageChange($event)"
+      [first]="first"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} demandes"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Référence</th>
+          <th>Paroisse</th>
+          <th>Nom recherché</th>
+          <th>Statut</th>
+          <th>Montant</th>
+          <th>Date demande</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-demande>
+        <tr>
+          <td>
+            <strong class="reference">{{ demande.reference }}</strong>
+          </td>
+          <td>
+            <div class="paroisse-cell">
+              <i class="pi pi-map-marker"></i>
+              <span>{{ demande.paroisse?.nom || 'N/A' }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="nom-cell">
+              {{ demande.prenoms_recherche }} {{ demande.nom_recherche }}
+            </div>
+          </td>
+          <td>
+            <p-tag 
+              [value]="demande.statut_label" 
+              [severity]="getStatutSeverity(demande.statut)"
+              styleClass="status-tag">
+            </p-tag>
+          </td>
+          <td>
+            <strong class="montant">{{ demande.montant_formatte }}</strong>
+          </td>
+          <td>
+            <div class="date-cell">
+              <i class="pi pi-calendar"></i>
+              <span>{{ demande.created_at | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <small class="time">{{ demande.created_at | date:'HH:mm' }}</small>
+          </td>
+          <td class="action-buttons">
+            <div class="actions-wrapper">
+              <!-- Voir détails -->
+              <button pButton 
+                      icon="pi pi-eye" 
+                      [routerLink]="['/citoyen/demandes', demande.id]"
+                      class="p-button-rounded p-button-text p-button-info"
+                      pTooltip="Voir les détails"
+                      tooltipPosition="top"></button>
+
+              <!-- Payer -->
+              <button pButton 
+                      icon="pi pi-wallet" 
+                      *ngIf="canPay(demande)"
+                      [routerLink]="['/citoyen/demandes', demande.id]"
+                      [queryParams]="{action: 'payer'}"
+                      class="p-button-rounded p-button-text p-button-warning"
+                      pTooltip="Procéder au paiement"
+                      tooltipPosition="top"></button>
+
+              <!-- Télécharger -->
+              <button pButton 
+                      icon="pi pi-download" 
+                      *ngIf="canDownload(demande)"
+                      (click)="telechargerExtrait(demande)"
+                      class="p-button-rounded p-button-text p-button-success"
+                      pTooltip="Télécharger l'extrait"
+                      tooltipPosition="top"></button>
+
+              <!-- Badge paiement -->
+              <span *ngIf="demande.paiement?.statut === 'succes'" 
+                    class="payment-badge">
+                <i class="pi pi-check-circle"></i>
+                <span>Payé</span>
+              </span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="empty-message">
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <h3>Aucune demande trouvée</h3>
+              <p>Vous n'avez pas encore fait de demande d'extrait de baptême.</p>
+              <button pButton 
+                      label="Créer une demande" 
+                      icon="pi pi-plus"
+                      routerLink="/citoyen/demandes/nouvelle"
+                      class="p-button-primary p-button-lg"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="7">
+            <p-skeleton height="60px"></p-skeleton>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-confirmDialog></p-confirmDialog>

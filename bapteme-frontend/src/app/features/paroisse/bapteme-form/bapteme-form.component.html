@@ -1,0 +1,320 @@
+<app-navbar></app-navbar>
+
+<div class="bapteme-form-page">
+  <div class="container">
+    <!-- Header avec titre dynamique -->
+    <div class="page-header">
+      <h1>
+        <i [class]="isEditMode ? 'pi pi-pencil' : 'pi pi-file-plus'"></i>
+        {{ isEditMode ? 'Modifier l\'Acte de Baptême' : 'Enregistrer un Acte de Baptême' }}
+      </h1>
+      <button pButton 
+              label="Annuler" 
+              icon="pi pi-times"
+              (click)="onCancel()"
+              [disabled]="loading || loadingData"
+              class="p-button-text p-button-secondary"></button>
+    </div>
+
+    <!-- Indicateur de chargement -->
+    <div *ngIf="loadingData" class="loading-container">
+      <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+      <p>Chargement des données du baptême...</p>
+    </div>
+
+    <!-- Formulaire -->
+    <form [formGroup]="baptemeForm" (ngSubmit)="onSubmit()" *ngIf="!loadingData">
+      <!-- Registre -->
+      <p-card header="📝 Registre" class="form-section">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="annee">Année d'enregistrement *</label>
+            <p-inputNumber id="annee"
+                           formControlName="annee_enregistrement"
+                           [useGrouping]="false"
+                           [min]="1900"
+                           [max]="currentYear + 1"
+                           [disabled]="loading"
+                           styleClass="w-full">
+            </p-inputNumber>
+            <small class="p-error" *ngIf="annee_enregistrement?.invalid && annee_enregistrement?.touched">
+              Année requise
+            </small>
+          </div>
+
+          <div class="form-field">
+            <label for="numero">Numéro d'ordre *</label>
+            <p-inputNumber id="numero"
+                           formControlName="numero_ordre"
+                           [useGrouping]="false"
+                           [min]="1"
+                           [disabled]="loading"
+                           styleClass="w-full">
+            </p-inputNumber>
+            <small class="p-error" *ngIf="numero_ordre?.invalid && numero_ordre?.touched">
+              Numéro requis
+            </small>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Informations du Baptisé -->
+      <p-card header="📋 Informations du Baptisé" class="form-section">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="prenoms">Prénom(s) *</label>
+            <input pInputText 
+                   id="prenoms"
+                   formControlName="prenoms"
+                   placeholder="Jean-Baptiste"
+                   [disabled]="loading"
+                   class="w-full" />
+            <small class="p-error" *ngIf="prenoms?.invalid && prenoms?.touched">
+              Prénom(s) requis
+            </small>
+          </div>
+
+          <div class="form-field">
+            <label for="nom">Nom *</label>
+            <input pInputText 
+                   id="nom"
+                   formControlName="nom"
+                   placeholder="DIOP"
+                   [disabled]="loading"
+                   class="w-full" />
+            <small class="p-error" *ngIf="nom?.invalid && nom?.touched">
+              Nom requis
+            </small>
+          </div>
+
+          <div class="form-field">
+            <label for="date_naissance">Date de naissance *</label>
+            <p-calendar id="date_naissance"
+                        formControlName="date_naissance"
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        placeholder="jj/mm/aaaa"
+                        [maxDate]="maxDate"
+                        [disabled]="loading"
+                        styleClass="w-full"
+                        inputStyleClass="w-full">
+            </p-calendar>
+            <small class="p-error" *ngIf="date_naissance?.invalid && date_naissance?.touched">
+              Date de naissance requise
+            </small>
+          </div>
+
+          <div class="form-field">
+            <label for="lieu_naissance">Lieu de naissance *</label>
+            <input pInputText 
+                   id="lieu_naissance"
+                   formControlName="lieu_naissance"
+                   placeholder="Dakar"
+                   [disabled]="loading"
+                   class="w-full" />
+            <small class="p-error" *ngIf="lieu_naissance?.invalid && lieu_naissance?.touched">
+              Lieu de naissance requis
+            </small>
+          </div>
+
+          <div class="form-field full-width">
+            <label>Sexe *</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <p-radioButton inputId="masculin" 
+                               value="M" 
+                               formControlName="sexe"
+                               [disabled]="loading">
+                </p-radioButton>
+                <label for="masculin">Masculin</label>
+              </div>
+              <div class="radio-option">
+                <p-radioButton inputId="feminin" 
+                               value="F" 
+                               formControlName="sexe"
+                               [disabled]="loading">
+                </p-radioButton>
+                <label for="feminin">Féminin</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Parents -->
+      <p-card header="👨‍👩‍👦 Parents" class="form-section">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="nom_pere">Nom du père *</label>
+            <input pInputText 
+                   id="nom_pere"
+                   formControlName="nom_pere"
+                   placeholder="Amadou DIOP"
+                   [disabled]="loading"
+                   class="w-full" />
+            <small class="p-error" *ngIf="nom_pere?.invalid && nom_pere?.touched">
+              Nom du père requis
+            </small>
+          </div>
+
+          <div class="form-field">
+            <label for="nom_mere">Nom de la mère *</label>
+            <input pInputText 
+                   id="nom_mere"
+                   formControlName="nom_mere"
+                   placeholder="Awa SARR"
+                   [disabled]="loading"
+                   class="w-full" />
+            <small class="p-error" *ngIf="nom_mere?.invalid && nom_mere?.touched">
+              Nom de la mère requis
+            </small>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Cérémonie -->
+      <p-card header="⛪ Cérémonie de Baptême" class="form-section">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="date_bapteme">Date de baptême *</label>
+            <p-calendar id="date_bapteme"
+                        formControlName="date_bapteme"
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        placeholder="jj/mm/aaaa"
+                        [maxDate]="maxDate"
+                        [disabled]="loading"
+                        styleClass="w-full"
+                        inputStyleClass="w-full">
+            </p-calendar>
+            <small class="p-error" *ngIf="date_bapteme?.invalid && date_bapteme?.touched">
+              Date de baptême requise
+            </small>
+          </div>
+
+          <div class="form-field">
+            <label for="celebrant">Célébrant *</label>
+            <input pInputText 
+                   id="celebrant"
+                   formControlName="celebrant"
+                   placeholder="Abbé Pierre SENE"
+                   [disabled]="loading"
+                   class="w-full" />
+            <small class="p-error" *ngIf="celebrant?.invalid && celebrant?.touched">
+              Célébrant requis
+            </small>
+          </div>
+
+          <div class="form-field">
+            <label for="nom_parrain">Parrain</label>
+            <input pInputText 
+                   id="nom_parrain"
+                   formControlName="nom_parrain"
+                   placeholder="Ibrahima FALL"
+                   [disabled]="loading"
+                   class="w-full" />
+          </div>
+
+          <div class="form-field">
+            <label for="representant_parrain">Représentant du parrain</label>
+            <input pInputText 
+                   id="representant_parrain"
+                   formControlName="representant_parrain"
+                   placeholder="Si représenté"
+                   [disabled]="loading"
+                   class="w-full" />
+          </div>
+
+          <div class="form-field">
+            <label for="nom_marraine">Marraine</label>
+            <input pInputText 
+                   id="nom_marraine"
+                   formControlName="nom_marraine"
+                   placeholder="Mariama DIALLO"
+                   [disabled]="loading"
+                   class="w-full" />
+          </div>
+
+          <div class="form-field">
+            <label for="representante_marraine">Représentante de la marraine</label>
+            <input pInputText 
+                   id="representante_marraine"
+                   formControlName="representante_marraine"
+                   placeholder="Si représentée"
+                   [disabled]="loading"
+                   class="w-full" />
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Sacrements Ultérieurs -->
+      <p-card header="✝️ Sacrements Ultérieurs (Optionnel)" class="form-section">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="date_confirmation">Date de confirmation</label>
+            <p-calendar id="date_confirmation"
+                        formControlName="date_confirmation"
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        placeholder="jj/mm/aaaa"
+                        [disabled]="loading"
+                        styleClass="w-full"
+                        inputStyleClass="w-full">
+            </p-calendar>
+          </div>
+
+          <div class="form-field">
+            <label for="lieu_confirmation">Lieu de confirmation</label>
+            <input pInputText 
+                   id="lieu_confirmation"
+                   formControlName="lieu_confirmation"
+                   placeholder="Lieu"
+                   [disabled]="loading"
+                   class="w-full" />
+          </div>
+
+          <div class="form-field">
+            <label for="date_mariage">Date de mariage</label>
+            <p-calendar id="date_mariage"
+                        formControlName="date_mariage"
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        placeholder="jj/mm/aaaa"
+                        [disabled]="loading"
+                        styleClass="w-full"
+                        inputStyleClass="w-full">
+            </p-calendar>
+          </div>
+
+          <div class="form-field">
+            <label for="conjoint">Conjoint(e)</label>
+            <input pInputText 
+                   id="conjoint"
+                   formControlName="conjoint"
+                   placeholder="Nom du conjoint"
+                   [disabled]="loading"
+                   class="w-full" />
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Actions avec bouton dynamique -->
+      <div class="form-actions">
+        <button pButton 
+                type="button"
+                label="Annuler" 
+                icon="pi pi-times"
+                (click)="onCancel()"
+                [disabled]="loading"
+                class="p-button-secondary"></button>
+        <button pButton 
+                type="submit"
+                [label]="isEditMode ? 'Modifier le Baptême' : 'Enregistrer le Baptême'"
+                [icon]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+                [loading]="loading"
+                [disabled]="baptemeForm.invalid || loading"
+                [class]="isEditMode ? 'p-button-warning' : 'p-button-success'"></button>
+      </div>
+    </form>
+  </div>
+</div>

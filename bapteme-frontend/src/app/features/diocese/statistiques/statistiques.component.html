@@ -1,0 +1,319 @@
+<div class="statistiques-page">
+    <div class="page-header">
+    <div>
+      <h1>Statistiques et Rapports</h1>
+      <p class="subtitle">Vue d'ensemble des activités</p>
+    </div>
+    <div class="header-actions">
+      <p-dropdown 
+        [(ngModel)]="selectedYear" 
+        [options]="years" 
+        (onChange)="onYearChange()"
+        placeholder="Année"
+        styleClass="year-dropdown">
+      </p-dropdown>
+      <button pButton 
+              label="Export PDF" 
+              icon="pi pi-file-pdf"
+              (click)="exportPDF()"
+              class="p-button-outlined p-button-danger"></button>
+      <button pButton 
+              label="Export Excel" 
+              icon="pi pi-file-excel"
+              (click)="exportExcel()"
+              class="p-button-outlined p-button-success"></button>
+    </div>
+  </div>
+
+    <div *ngIf="loading" class="loading-container">
+    <p-skeleton *ngFor="let i of [1,2,3,4]" height="300px" styleClass="mb-3"></p-skeleton>
+  </div>
+
+    <div *ngIf="!loading">
+        <p-tabView styleClass="stats-tabs">
+      
+            <p-tabPanel header="Vue d'ensemble" leftIcon="pi pi-chart-line">
+        <div class="charts-grid">
+                    <p-card header="Baptêmes par mois ({{ selectedYear }})">
+            <div class="chart-container">
+              <p-chart type="line" 
+                       [data]="baptemesMoisChart" 
+                       [options]="chartOptions"
+                       height="300px">
+              </p-chart>
+            </div>
+          </p-card>
+
+                    <p-card header="Répartition par sexe">
+            <div class="chart-container">
+              <p-chart type="pie" 
+                       [data]="baptemesSexeChart" 
+                       [options]="pieChartOptions"
+                       height="300px">
+              </p-chart>
+            </div>
+            <div class="stats-summary">
+              <div class="stat-item">
+                <i class="pi pi-male" style="color: #3b82f6;"></i>
+                <span>Masculin: <strong>520</strong></span>
+              </div>
+              <div class="stat-item">
+                <i class="pi pi-female" style="color: #ec4899;"></i>
+                <span>Féminin: <strong>480</strong></span>
+              </div>
+            </div>
+          </p-card>
+
+                    <p-card header="Demandes par statut">
+            <div class="chart-container">
+              <p-chart type="doughnut" 
+                       [data]="demandesStatutChart" 
+                       [options]="pieChartOptions"
+                       height="300px">
+              </p-chart>
+            </div>
+            <div class="stats-legend">
+              <div class="legend-item">
+                <span class="color-box" style="background: #f59e0b;"></span>
+                <span>En attente: 45</span>
+              </div>
+              <div class="legend-item">
+                <span class="color-box" style="background: #3b82f6;"></span>
+                <span>En cours: 28</span>
+              </div>
+              <div class="legend-item">
+                <span class="color-box" style="background: #10b981;"></span>
+                <span>Validées: 85</span>
+              </div>
+              <div class="legend-item">
+                <span class="color-box" style="background: #059669;"></span>
+                <span>Prêtes: 120</span>
+              </div>
+              <div class="legend-item">
+                <span class="color-box" style="background: #ef4444;"></span>
+                <span>Rejetées: 12</span>
+              </div>
+            </div>
+          </p-card>
+
+                    <p-card header="Évolution sur 5 ans">
+            <div class="chart-container">
+              <p-chart type="line" 
+                       [data]="evolutionAnnuelleChart" 
+                       [options]="chartOptions"
+                       height="300px">
+              </p-chart>
+            </div>
+          </p-card>
+        </div>
+      </p-tabPanel>
+
+            <p-tabPanel header="Par paroisse" leftIcon="pi pi-building">
+        <div class="charts-grid-single">
+          <p-card header="Top 15 Paroisses ({{ selectedYear }})">
+            <div class="chart-container-large">
+              <p-chart type="bar" 
+                       [data]="baptemesParoisseChart" 
+                       [options]="barChartOptions"
+                       height="600px">
+              </p-chart>
+            </div>
+          </p-card>
+
+                    <p-card header="Détails par paroisse" styleClass="mt-3">
+                        <p-table [value]="detailsParoisses" 
+                     [paginator]="true" 
+                     [rows]="10"
+                     [showCurrentPageReport]="true"
+                     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
+                     styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="nom">Paroisse <p-sortIcon field="nom"></p-sortIcon></th>
+                  <th pSortableColumn="mission">Mission <p-sortIcon field="mission"></p-sortIcon></th>
+                  <th pSortableColumn="baptemes">Baptêmes <p-sortIcon field="baptemes"></p-sortIcon></th>
+                  <th pSortableColumn="demandes">Demandes <p-sortIcon field="demandes"></p-sortIcon></th>
+                  <th pSortableColumn="delai">Délai moyen <p-sortIcon field="delai"></p-sortIcon></th>
+                  <th>Performance</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-paroisse>
+                <tr>
+                  <td><strong>{{ paroisse.nom }}</strong></td>
+                  <td>{{ paroisse.mission }}</td>
+                  <td>{{ paroisse.baptemes }}</td>
+                  <td>{{ paroisse.demandes }}</td>
+                  <td>{{ paroisse.delai }}h</td>
+                  <td>
+                                        <p-tag 
+                      [value]="paroisse.performance" 
+                      [severity]="getPerformanceSeverity(paroisse.performance)">
+                    </p-tag>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-card>
+        </div>
+      </p-tabPanel>
+
+            <p-tabPanel header="Analyses" leftIcon="pi pi-chart-bar">
+        <div class="analyses-grid">
+                    <div class="kpi-cards">
+            <div class="kpi-card primary">
+              <div class="kpi-icon">
+                <i class="pi pi-users"></i>
+              </div>
+              <div class="kpi-content">
+                <p class="kpi-label">Total baptêmes</p>
+                <h2 class="kpi-value">1,234</h2>
+                <p class="kpi-change positive">
+                  <i class="pi pi-arrow-up"></i> +15% vs {{ selectedYear - 1 }}
+                </p>
+              </div>
+            </div>
+
+            <div class="kpi-card success">
+              <div class="kpi-icon">
+                <i class="pi pi-check-circle"></i>
+              </div>
+              <div class="kpi-content">
+                <p class="kpi-label">Taux de satisfaction</p>
+                <h2 class="kpi-value">98.5%</h2>
+                <p class="kpi-change positive">
+                  <i class="pi pi-arrow-up"></i> +2.3%
+                </p>
+              </div>
+            </div>
+
+            <div class="kpi-card warning">
+              <div class="kpi-icon">
+                <i class="pi pi-clock"></i>
+              </div>
+              <div class="kpi-content">
+                <p class="kpi-label">Délai moyen</p>
+                <h2 class="kpi-value">36h</h2>
+                <p class="kpi-change negative">
+                  <i class="pi pi-arrow-down"></i> -6h vs cible
+                </p>
+              </div>
+            </div>
+
+            <div class="kpi-card info">
+              <div class="kpi-icon">
+                <i class="pi pi-wallet"></i>
+              </div>
+              <div class="kpi-content">
+                <p class="kpi-label">Revenus</p>
+                <h2 class="kpi-value">2.5M FCFA</h2>
+                <p class="kpi-change positive">
+                  <i class="pi pi-arrow-up"></i> +8%
+                </p>
+              </div>
+            </div>
+          </div>
+
+                    <p-card header="Comparaison mensuelle ({{ selectedYear }} vs {{ selectedYear - 1 }})">
+            <div class="chart-container">
+              <p-chart type="bar" 
+                       [data]="comparaisonMensuelleChart" 
+                       [options]="chartOptions"
+                       height="300px">
+              </p-chart>
+            </div>
+          </p-card>
+
+                    <p-card header="Carte de chaleur des activités">
+            <div class="heatmap-container">
+              <p class="text-center" style="padding: 3rem; color: #6b7280;">
+                <i class="pi pi-chart-bar" style="font-size: 3rem;"></i><br>
+                Heatmap des jours les plus actifs (Placeholder pour un développement futur)
+              </p>
+            </div>
+          </p-card>
+        </div>
+      </p-tabPanel>
+
+            <p-tabPanel header="Rapports" leftIcon="pi pi-file">
+        <div class="rapports-section">
+          <p-card header="Générer un rapport personnalisé">
+            <div class="rapport-form">
+              <div class="form-grid">
+                <div class="form-field">
+                  <label>Type de rapport</label>
+                  <p-dropdown 
+                    [options]="typesRapport" 
+                    placeholder="Sélectionner"
+                    styleClass="w-full">
+                  </p-dropdown>
+                </div>
+                
+                <div class="form-field">
+                  <label>Période</label>
+                  <p-dropdown 
+                    [options]="periodes" 
+                    placeholder="Sélectionner"
+                    styleClass="w-full">
+                  </p-dropdown>
+                </div>
+
+                <div class="form-field">
+                  <label>Format</label>
+                  <p-dropdown 
+                    [options]="formats" 
+                    placeholder="Sélectionner"
+                    styleClass="w-full">
+                  </p-dropdown>
+                </div>
+
+                <div class="form-field">
+                  <label>&nbsp;</label>
+                  <button pButton 
+                          label="Générer" 
+                          icon="pi pi-download"
+                          class="w-full p-button-primary"></button>
+                </div>
+              </div>
+            </div>
+          </p-card>
+
+                    <p-card header="Rapports disponibles" styleClass="mt-3">
+            <p-table [value]="rapportsDisponibles" 
+                     styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Nom du rapport</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Taille</th>
+                  <th class="text-center">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-rapport>
+                <tr>
+                  <td>
+                    <i [class]="'pi ' + rapport.icon" style="margin-right: 0.5rem;"></i>
+                    <strong>{{ rapport.nom }}</strong>
+                  </td>
+                  <td>{{ rapport.type }}</td>
+                  <td>{{ rapport.date }}</td>
+                  <td>{{ rapport.taille }}</td>
+                  <td class="text-center">
+                    <button pButton 
+                            icon="pi pi-download" 
+                            class="p-button-rounded p-button-text"
+                            pTooltip="Télécharger"></button>
+                    <button pButton 
+                            icon="pi pi-eye" 
+                            class="p-button-rounded p-button-text"
+                            pTooltip="Prévisualiser"></button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-card>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>

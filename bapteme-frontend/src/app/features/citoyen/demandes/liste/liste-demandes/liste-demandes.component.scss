@@ -1,0 +1,418 @@
+.demandes-page {
+  padding: 0.5rem;
+
+  // ========================================
+  // PAGE HEADER
+  // ========================================
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    gap: 2rem;
+
+    .header-content {
+      flex: 1;
+
+      h1 {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 0.75rem 0;
+        letter-spacing: -0.5px;
+      }
+
+      .subtitle {
+        color: var(--text-secondary);
+        font-size: 1.05rem;
+        margin: 0;
+      }
+    }
+
+    .btn-new-demande {
+      height: 3rem;
+      padding: 0 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+      transition: all 0.3s;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+
+      .header-content h1 {
+        font-size: 1.75rem;
+      }
+
+      .btn-new-demande {
+        width: 100%;
+      }
+    }
+  }
+
+  // ========================================
+  // FILTER CARD
+  // ========================================
+  .filter-card {
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    ::ng-deep .p-card-body {
+      padding: 1.75rem;
+    }
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: 2fr 1.25fr auto;
+    gap: 1.5rem;
+    align-items: end;
+
+    @media (max-width: 968px) {
+      grid-template-columns: 1fr 1fr;
+
+      .filter-actions {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+
+      label {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+      }
+
+      // Fix input avec icône
+      ::ng-deep .p-input-icon-left {
+        > input {
+          padding-left: 3rem;
+        }
+
+        > i {
+          left: 1rem;
+          color: #9ca3af;
+        }
+      }
+
+      // Fix dropdown
+      ::ng-deep .p-dropdown {
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        transition: all 0.3s;
+
+        &:hover {
+          border-color: #d1d5db;
+        }
+
+        &.p-focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+      }
+
+      // Fix input
+      ::ng-deep input.p-inputtext {
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+
+        &:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        &::placeholder {
+          color: #9ca3af;
+        }
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 0.75rem;
+
+      button {
+        height: 2.75rem;
+        font-weight: 500;
+      }
+
+      @media (max-width: 576px) {
+        width: 100%;
+
+        button {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // TABLE CARD
+  // ========================================
+  .table-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    ::ng-deep .p-card-body {
+      padding: 0;
+    }
+
+    ::ng-deep .p-datatable {
+      .p-datatable-thead > tr > th {
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        color: var(--text-primary);
+        font-weight: 600;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 2px solid #e5e7eb;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .p-datatable-tbody > tr > td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle;
+      }
+
+      .p-datatable-tbody > tr {
+        transition: all 0.2s;
+
+        &:hover {
+          background: #fafbfc;
+          transform: translateX(2px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+      }
+
+      // Paginator
+      .p-paginator {
+        padding: 1.25rem 1.5rem;
+        border-top: 2px solid #f3f4f6;
+        background: #fafbfc;
+
+        .p-paginator-current {
+          color: var(--text-secondary);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // TABLE CELLS STYLING
+  // ========================================
+  .reference {
+    color: #1e40af;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+  }
+
+  .paroisse-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+
+    i {
+      color: #3b82f6;
+      font-size: 1rem;
+    }
+
+    span {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+  }
+
+  .nom-cell {
+    color: var(--text-primary);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .status-tag {
+    font-weight: 600 !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 1rem !important;
+  }
+
+  .montant {
+    color: #059669;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .date-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+
+    i {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    span {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+  }
+
+  .time {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-left: 1.375rem;
+  }
+
+  // ========================================
+  // ACTION BUTTONS
+  // ========================================
+  .action-buttons {
+    padding: 0.5rem !important;
+  }
+
+  .actions-wrapper {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    button {
+      width: 2.75rem;
+      height: 2.75rem;
+      transition: all 0.2s;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .payment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    padding: 0.5rem 1rem;
+    border-radius: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);
+
+    i {
+      font-size: 1rem;
+    }
+
+    span {
+      white-space: nowrap;
+    }
+  }
+
+  // ========================================
+  // EMPTY STATE
+  // ========================================
+  .empty-message {
+    padding: 0 !important;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+
+    i {
+      font-size: 5rem;
+      color: #d1d5db;
+      margin-bottom: 1.5rem;
+      opacity: 0.6;
+    }
+
+    h3 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0 0 0.75rem 0;
+    }
+
+    p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      margin: 0 0 2rem 0;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    button {
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+      transition: all 0.3s;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+      }
+    }
+  }
+
+  // ========================================
+  // UTILITIES
+  // ========================================
+  .text-center {
+    text-align: center;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  // ========================================
+  // RESPONSIVE
+  // ========================================
+  @media (max-width: 768px) {
+    padding: 0.25rem;
+
+    ::ng-deep .p-datatable {
+      font-size: 0.875rem;
+
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 1rem;
+      }
+    }
+
+    .actions-wrapper {
+      flex-direction: column;
+      gap: 0.5rem;
+
+      button {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+    }
+  }
+}

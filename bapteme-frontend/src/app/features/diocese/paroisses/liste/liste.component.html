@@ -1,0 +1,579 @@
+<div class="paroisses-liste-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Gestion des paroisses</h1>
+      <p class="subtitle">
+        <i class="pi pi-building"></i>
+        {{ paroisses.length }} paroisses enregistrées
+      </p>
+    </div>
+    <div class="header-actions">
+      <button pButton 
+              label="Exporter" 
+              icon="pi pi-download"
+              (click)="exportData()"
+              class="p-button-outlined export-btn"></button>
+      <button pButton 
+              label="Nouvelle paroisse" 
+              icon="pi pi-plus"
+              (click)="openNewParoisseDialog()"
+              class="p-button-success add-btn"></button>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <div class="search-wrapper">
+      <i class="pi pi-search search-icon"></i>
+      <input pInputText 
+             [(ngModel)]="searchTerm" 
+             placeholder="Rechercher par nom, mission, adresse..."
+             class="search-input" />
+      <span class="search-count" *ngIf="searchTerm">
+        {{ filteredParoisses.length }} résultat(s)
+      </span>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <p-table 
+      [value]="filteredParoisses" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="15"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} paroisses"
+      [rowsPerPageOptions]="[15, 25, 50]"
+      responsiveLayout="scroll"
+      styleClass="paroisses-table">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="nom" class="col-paroisse">
+            <div class="header-cell">
+              <span>Paroisse</span>
+              <p-sortIcon field="nom"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="mission" class="col-mission">
+            <div class="header-cell">
+              <span>Mission</span>
+              <p-sortIcon field="mission"></p-sortIcon>
+            </div>
+          </th>
+          <th class="col-contact">Contact</th>
+          <th class="col-adresse">Adresse</th>
+          <th class="col-statut text-center">Statut</th>
+          <th class="col-actions text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-paroisse>
+        <tr class="table-row">
+          <td>
+            <div class="paroisse-cell">
+              <div class="avatar-wrapper">
+                <p-avatar 
+                  *ngIf="paroisse.logo_url"
+                  [image]="paroisse.logo_url"
+                  size="large"
+                  shape="circle">
+                </p-avatar>
+                <p-avatar 
+                  *ngIf="!paroisse.logo_url"
+                  [label]="paroisse.nom.charAt(0)"
+                  size="large"
+                  shape="circle"
+                  [style]="{'background-color':'#1e40af', 'color': '#ffffff'}">
+                </p-avatar>
+              </div>
+              <div class="paroisse-info">
+                <strong class="paroisse-name">{{ paroisse.nom }}</strong>
+                <p class="paroisse-bp" *ngIf="paroisse.bp">
+                  <i class="pi pi-inbox"></i>
+                  BP: {{ paroisse.bp }}
+                </p>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="mission-badge" *ngIf="paroisse.mission">
+              <i class="pi pi-bookmark"></i>
+              {{ paroisse.mission }}
+            </span>
+            <span *ngIf="!paroisse.mission" class="text-muted">Non renseignée</span>
+          </td>
+          <td>
+            <div class="contact-info">
+              <p class="contact-item" *ngIf="paroisse.telephone">
+                <i class="pi pi-phone"></i>
+                <span>{{ paroisse.telephone }}</span>
+              </p>
+              <p class="contact-item" *ngIf="paroisse.email">
+                <i class="pi pi-envelope"></i>
+                <span>{{ paroisse.email }}</span>
+              </p>
+              <span *ngIf="!paroisse.telephone && !paroisse.email" class="text-muted">
+                Non renseigné
+              </span>
+            </div>
+          </td>
+          <td>
+            <div class="adresse-cell">
+              <i class="pi pi-map-marker"></i>
+              <span *ngIf="paroisse.adresse">{{ paroisse.adresse }}</span>
+              <span *ngIf="!paroisse.adresse" class="text-muted">Non renseignée</span>
+            </div>
+          </td>
+          <td class="text-center">
+            <p-tag value="Active" severity="success" styleClass="status-tag">
+              <i class="pi pi-check-circle"></i>
+              Active
+            </p-tag>
+          </td>
+          <td class="text-center">
+            <div class="action-buttons">
+              <button pButton 
+                      icon="pi pi-eye" 
+                      (click)="viewDetails(paroisse)"
+                      class="p-button-rounded p-button-text p-button-info action-btn"
+                      pTooltip="Voir détails"
+                      tooltipPosition="top"></button>
+              <button pButton 
+                      icon="pi pi-chart-bar" 
+                      (click)="getStatistics(paroisse.id)"
+                      class="p-button-rounded p-button-text p-button-success action-btn"
+                      pTooltip="Statistiques"
+                      tooltipPosition="top"></button>
+              <button pButton 
+                      icon="pi pi-pencil" 
+                      (click)="openEditParoisseDialog(paroisse)"
+                      class="p-button-rounded p-button-text p-button-warning action-btn"
+                      pTooltip="Modifier"
+                      tooltipPosition="top"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="pi pi-building"></i>
+              </div>
+              <h3>Aucune paroisse trouvée</h3>
+              <p *ngIf="searchTerm">Aucune paroisse ne correspond à votre recherche "{{ searchTerm }}"</p>
+              <p *ngIf="!searchTerm">Commencez par ajouter une nouvelle paroisse</p>
+              <button pButton 
+                      label="Ajouter une paroisse" 
+                      icon="pi pi-plus"
+                      (click)="openNewParoisseDialog()"
+                      class="p-button-success"
+                      *ngIf="!searchTerm"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="6">
+            <div class="loading-state">
+              <p-progressSpinner></p-progressSpinner>
+              <p>Chargement des paroisses...</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Dialog Détails -->
+<p-dialog 
+  [(visible)]="showDetailsDialog" 
+  [modal]="true"
+  [style]="{width: '650px'}"
+  [dismissableMask]="true"
+  styleClass="details-dialog">
+  
+  <ng-template pTemplate="header">
+    <div class="dialog-header">
+      <div class="dialog-icon">
+        <i class="pi pi-building"></i>
+      </div>
+      <div>
+        <h2>{{ selectedParoisse?.nom }}</h2>
+        <p class="dialog-subtitle">Détails de la paroisse</p>
+      </div>
+    </div>
+  </ng-template>
+  
+  <div class="details-content" *ngIf="selectedParoisse">
+    <!-- Informations générales -->
+    <div class="detail-section">
+      <div class="section-header">
+        <i class="pi pi-info-circle"></i>
+        <h3>Informations générales</h3>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card">
+          <label>Nom de la paroisse</label>
+          <p>{{ selectedParoisse.nom }}</p>
+        </div>
+        <div class="detail-card" *ngIf="selectedParoisse.mission">
+          <label>Mission</label>
+          <p class="mission-value">
+            <i class="pi pi-bookmark"></i>
+            {{ selectedParoisse.mission }}
+          </p>
+        </div>
+        <div class="detail-card" *ngIf="selectedParoisse.bp">
+          <label>Boîte postale</label>
+          <p>
+            <i class="pi pi-inbox"></i>
+            {{ selectedParoisse.bp }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Adresse -->
+    <div class="detail-section" *ngIf="selectedParoisse.adresse">
+      <div class="section-header">
+        <i class="pi pi-map-marker"></i>
+        <h3>Localisation</h3>
+      </div>
+      <div class="detail-card full-width">
+        <label>Adresse complète</label>
+        <p class="address-value">{{ selectedParoisse.adresse }}</p>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="detail-section">
+      <div class="section-header">
+        <i class="pi pi-phone"></i>
+        <h3>Coordonnées de contact</h3>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card" *ngIf="selectedParoisse.telephone">
+          <label>Téléphone</label>
+          <p class="contact-value">
+            <i class="pi pi-phone"></i>
+            <a href="tel:{{ selectedParoisse.telephone }}">{{ selectedParoisse.telephone }}</a>
+          </p>
+        </div>
+        <div class="detail-card" *ngIf="selectedParoisse.email">
+          <label>Email</label>
+          <p class="contact-value">
+            <i class="pi pi-envelope"></i>
+            <a href="mailto:{{ selectedParoisse.email }}">{{ selectedParoisse.email }}</a>
+          </p>
+        </div>
+      </div>
+      <div class="no-contact" *ngIf="!selectedParoisse.telephone && !selectedParoisse.email">
+        <i class="pi pi-exclamation-triangle"></i>
+        <p>Aucune coordonnée de contact renseignée</p>
+      </div>
+    </div>
+
+    <!-- Diocèse -->
+    <div class="detail-section" *ngIf="selectedParoisse.diocese">
+      <div class="section-header">
+        <i class="pi pi-flag"></i>
+        <h3>Diocèse rattaché</h3>
+      </div>
+      <div class="diocese-badge">
+        <i class="pi pi-building"></i>
+        <strong>{{ selectedParoisse.diocese.nom }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton 
+              label="Fermer" 
+              icon="pi pi-times"
+              (click)="showDetailsDialog = false"
+              class="p-button-text p-button-secondary"></button>
+      <button pButton 
+              label="Voir les statistiques" 
+              icon="pi pi-chart-bar"
+              (click)="getStatistics(selectedParoisse!.id); showDetailsDialog = false"
+              class="p-button-success"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Statistiques -->
+<p-dialog 
+  [(visible)]="showStatsDialog" 
+  [modal]="true"
+  [style]="{width: '800px'}"
+  [dismissableMask]="true"
+  styleClass="stats-dialog">
+  
+  <ng-template pTemplate="header">
+    <div class="dialog-header">
+      <div class="dialog-icon">
+        <i class="pi pi-chart-bar"></i>
+      </div>
+      <div>
+        <h2>Statistiques</h2>
+        <p class="dialog-subtitle" *ngIf="selectedParoisse">
+          {{ selectedParoisse.nom }}
+        </p>
+      </div>
+    </div>
+  </ng-template>
+  
+  <div class="stats-content">
+    <!-- Loading -->
+    <div *ngIf="loadingStats" class="loading-state">
+      <p-progressSpinner></p-progressSpinner>
+      <p>Chargement des statistiques...</p>
+    </div>
+
+    <!-- Stats Display -->
+    <div *ngIf="!loadingStats && statistics" class="stats-grid">
+      <!-- Carte Baptêmes -->
+      <div class="stat-card baptemes">
+        <div class="stat-icon">
+          <i class="pi pi-users"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Total Baptêmes</h3>
+          <p class="stat-value">{{ statistics.total_baptemes }}</p>
+        </div>
+      </div>
+
+      <!-- Carte Parrains -->
+      <div class="stat-card parrains">
+        <div class="stat-icon">
+          <i class="pi pi-user"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Total Parrains</h3>
+          <p class="stat-value">{{ statistics.total_parrains }}</p>
+        </div>
+      </div>
+
+      <!-- Carte Marraines -->
+      <div class="stat-card marraines">
+        <div class="stat-icon">
+          <i class="pi pi-user"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Total Marraines</h3>
+          <p class="stat-value">{{ statistics.total_marraines }}</p>
+        </div>
+      </div>
+
+      <!-- Baptêmes par mois -->
+      <div class="stat-section" *ngIf="statistics.baptemes_par_mois && statistics.baptemes_par_mois.length > 0">
+        <h3 class="section-title">
+          <i class="pi pi-calendar"></i>
+          Baptêmes par mois
+        </h3>
+        <div class="month-list">
+          <div class="month-item" *ngFor="let item of statistics.baptemes_par_mois">
+            <span class="month-name">{{ item.mois }}</span>
+            <span class="month-count">{{ item.count }} baptême(s)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Baptêmes récents -->
+      <div class="stat-section" *ngIf="statistics.baptemes_recents && statistics.baptemes_recents.length > 0">
+        <h3 class="section-title">
+          <i class="pi pi-clock"></i>
+          Baptêmes récents
+        </h3>
+        <div class="recent-list">
+          <div class="recent-item" *ngFor="let bapteme of statistics.baptemes_recents">
+            <i class="pi pi-user"></i>
+            <span>{{ bapteme.prenom }} {{ bapteme.nom }}</span>
+            <span class="date">{{ bapteme.date_bapteme | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aucune donnée -->
+    <div *ngIf="!loadingStats && !statistics" class="no-stats">
+      <i class="pi pi-info-circle"></i>
+      <p>Aucune statistique disponible</p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton 
+              label="Fermer" 
+              icon="pi pi-times"
+              (click)="closeStatsDialog()"
+              class="p-button-text p-button-secondary"></button>
+      <button pButton 
+              label="Exporter" 
+              icon="pi pi-download"
+              (click)="exportData()"
+              class="p-button-outlined"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Formulaire Paroisse -->
+<p-dialog 
+  [(visible)]="showFormDialog" 
+  [modal]="true"
+  [style]="{width: '700px'}"
+  [dismissableMask]="false"
+  [closable]="!savingParoisse"
+  styleClass="form-dialog">
+  
+  <ng-template pTemplate="header">
+    <div class="dialog-header">
+      <div class="dialog-icon">
+        <i class="pi" [ngClass]="isEditMode ? 'pi-pencil' : 'pi-plus'"></i>
+      </div>
+      <div>
+        <h2>{{ isEditMode ? 'Modifier la paroisse' : 'Nouvelle paroisse' }}</h2>
+        <p class="dialog-subtitle">
+          {{ isEditMode ? 'Modifiez les informations de la paroisse' : 'Ajoutez une nouvelle paroisse' }}
+        </p>
+      </div>
+    </div>
+  </ng-template>
+  
+  <div class="form-content">
+    <form class="paroisse-form">
+      <!-- Nom -->
+      <div class="form-field">
+        <label for="nom" class="required">
+          <i class="pi pi-building"></i>
+          Nom de la paroisse
+        </label>
+        <input 
+          id="nom"
+          type="text" 
+          pInputText 
+          [(ngModel)]="paroisseForm.nom"
+          name="nom"
+          placeholder="Ex: Paroisse Saint-Joseph"
+          [disabled]="savingParoisse"
+          class="w-full" />
+      </div>
+
+      <!-- Mission -->
+      <div class="form-field">
+        <label for="mission">
+          <i class="pi pi-bookmark"></i>
+          Mission
+        </label>
+        <input 
+          id="mission"
+          type="text" 
+          pInputText 
+          [(ngModel)]="paroisseForm.mission"
+          name="mission"
+          placeholder="Ex: Mission de Dakar"
+          [disabled]="savingParoisse"
+          class="w-full" />
+      </div>
+
+      <!-- BP et Téléphone sur la même ligne -->
+      <div class="form-row">
+        <div class="form-field">
+          <label for="bp">
+            <i class="pi pi-inbox"></i>
+            Boîte postale
+          </label>
+          <input 
+            id="bp"
+            type="text" 
+            pInputText 
+            [(ngModel)]="paroisseForm.bp"
+            name="bp"
+            placeholder="Ex: BP 1234"
+            [disabled]="savingParoisse"
+            class="w-full" />
+        </div>
+
+        <div class="form-field">
+          <label for="telephone">
+            <i class="pi pi-phone"></i>
+            Téléphone
+          </label>
+          <input 
+            id="telephone"
+            type="tel" 
+            pInputText 
+            [(ngModel)]="paroisseForm.telephone"
+            name="telephone"
+            placeholder="Ex: +221 33 123 45 67"
+            [disabled]="savingParoisse"
+            class="w-full" />
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-field">
+        <label for="email">
+          <i class="pi pi-envelope"></i>
+          Email
+        </label>
+        <input 
+          id="email"
+          type="email" 
+          pInputText 
+          [(ngModel)]="paroisseForm.email"
+          name="email"
+          placeholder="Ex: contact@paroisse.sn"
+          [disabled]="savingParoisse"
+          class="w-full" />
+      </div>
+
+      <!-- Adresse -->
+      <div class="form-field">
+        <label for="adresse">
+          <i class="pi pi-map-marker"></i>
+          Adresse complète
+        </label>
+        <textarea 
+          id="adresse"
+          pInputTextarea 
+          [(ngModel)]="paroisseForm.adresse"
+          name="adresse"
+          placeholder="Ex: Rue 123, Quartier XYZ, Dakar"
+          [disabled]="savingParoisse"
+          rows="3"
+          class="w-full"></textarea>
+      </div>
+    </form>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton 
+              label="Annuler" 
+              icon="pi pi-times"
+              (click)="closeFormDialog()"
+              [disabled]="savingParoisse"
+              class="p-button-text p-button-secondary"></button>
+      <button pButton 
+              [label]="isEditMode ? 'Modifier' : 'Créer'"
+              [icon]="savingParoisse ? 'pi pi-spin pi-spinner' : (isEditMode ? 'pi pi-check' : 'pi pi-plus')"
+              (click)="saveParoisse()"
+              [disabled]="savingParoisse || !paroisseForm.nom.trim()"
+              class="p-button-success"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>

@@ -1,0 +1,91 @@
+<app-navbar></app-navbar>
+
+<div class="home-page">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">
+            ✝ Plateforme Numérique<br>
+            <span class="gradient-text">Extraits de Baptême</span>
+          </h1>
+          <p class="hero-subtitle">
+            Obtenez votre extrait de baptême en ligne en 48h.<br>
+            Simple, rapide et sécurisé.
+          </p>
+          <div class="hero-buttons">
+            <button pButton 
+                    label="Faire une demande" 
+                    icon="pi pi-plus"
+                    routerLink="/auth/register"
+                    class="p-button-lg p-button-primary"></button>
+            <button pButton 
+                    label="Vérifier un extrait" 
+                    icon="pi pi-qrcode"
+                    routerLink="/verify"
+                    class="p-button-lg p-button-outlined"></button>
+          </div>
+        </div>
+        <!-- Illustration avec icônes -->
+        <div class="hero-illustration">
+          <div class="illustration-container">
+            <i class="pi pi-bookmark main-icon"></i>
+            <div class="floating-icons">
+              <i class="pi pi-check-circle icon-1"></i>
+              <i class="pi pi-shield icon-2"></i>
+              <i class="pi pi-mobile icon-3"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title text-center">Pourquoi nous choisir ?</h2>
+      <div class="features-grid">
+        <div class="feature-card" *ngFor="let feature of features">
+          <div class="feature-icon">
+            <i [class]="feature.icon"></i>
+          </div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2 class="section-title text-center">Comment ça marche ?</h2>
+      <div class="steps-grid">
+        <div class="step-card" *ngFor="let step of steps">
+          <div class="step-number">{{ step.number }}</div>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Prêt à commencer ?</h2>
+        <p>Rejoignez des milliers de fidèles qui font confiance à notre plateforme</p>
+        <button pButton 
+                label="Créer mon compte gratuitement" 
+                icon="pi pi-user-plus"
+                routerLink="/auth/register"
+                class="p-button-lg p-button-success"></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<app-footer></app-footer>

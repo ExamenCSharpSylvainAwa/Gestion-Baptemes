@@ -1,0 +1,266 @@
+<div class="diocese-dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h1>Tableau de bord diocésain</h1>
+      <p class="subtitle">Vue d'ensemble de l'Archidiocèse</p>
+    </div>
+    <div class="header-actions">
+      <p-dropdown 
+        [(ngModel)]="selectedYear"
+        [options]="years"
+        (onChange)="onYearChange()"
+        placeholder="Année"
+        styleClass="year-dropdown">
+      </p-dropdown>
+      <button pButton 
+              label="Exporter" 
+              icon="pi pi-download"
+              (click)="exportData()"
+              class="p-button-outlined"></button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="stats-grid">
+      <p-skeleton *ngFor="let i of [1,2,3,4]" height="150px"></p-skeleton>
+    </div>
+    <div class="charts-grid">
+      <p-skeleton height="400px"></p-skeleton>
+      <p-skeleton height="400px"></p-skeleton>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && stats" class="dashboard-content">
+    
+    <div class="stats-grid">
+      
+      <div class="stat-card paroisses"> 
+        <div class="stat-icon stat-icon-animated">
+          <i class="pi pi-building"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Paroisses</p>
+          <h2 class="stat-value">{{ stats.total_paroisses }}</h2>
+          <p class="stat-info">Connectées au système</p>
+        </div>
+      </div>
+
+      <div class="stat-card baptemes">
+        <div class="stat-icon stat-icon-animated">
+          <i class="pi pi-bookmark"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Baptêmes</p>
+          <h2 class="stat-value">{{ stats.total_baptemes | number }}</h2>
+          <p class="stat-info">Enregistrés</p>
+        </div>
+      </div>
+
+      <div class="stat-card demandes">
+        <div class="stat-icon stat-icon-animated">
+          <i class="pi pi-file"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Demandes</p>
+          <h2 class="stat-value">{{ stats.total_demandes | number }}</h2>
+          <p class="stat-info">Toutes périodes</p>
+        </div>
+      </div>
+
+      <div class="stat-card attente">
+        <div class="stat-icon stat-icon-animated">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">En attente</p>
+          <h2 class="stat-value">{{ stats.demandes_en_attente }}</h2>
+          <p class="stat-info">À traiter</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <p-card header="Évolution des demandes ({{ selectedYear }})">
+        <div class="chart-container">
+          <p-chart 
+            type="line" 
+            [data]="demandesChartData" 
+            [options]="demandesChartOptions"
+            [style]="{'height': '350px'}">
+          </p-chart>
+        </div>
+      </p-card>
+
+      <p-card header="Top 10 Paroisses - Baptêmes">
+        <div class="chart-container">
+          <p-chart 
+            type="bar" 
+            [data]="baptemesChartData" 
+            [options]="baptemesChartOptions"
+            [style]="{'height': '350px'}">
+          </p-chart>
+        </div>
+      </p-card>
+    </div>
+
+    <p-card header="Performance des paroisses" styleClass="performance-card">
+      <p-table 
+        [value]="stats.performances_paroisses" 
+        [paginator]="true"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} paroisses"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        responsiveLayout="scroll"
+        styleClass="p-datatable-striped">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="nom">
+              Paroisse
+              <p-sortIcon field="nom"></p-sortIcon>
+            </th>
+            <th pSortableColumn="baptemes_count" class="text-center">
+              Baptêmes
+              <p-sortIcon field="baptemes_count"></p-sortIcon>
+            </th>
+            <th pSortableColumn="demandes_count" class="text-center">
+              Demandes
+              <p-sortIcon field="demandes_count"></p-sortIcon>
+            </th>
+            <th class="text-center">Performance</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-paroisse>
+          <tr>
+            <td>
+              <strong>{{ paroisse.nom }}</strong>
+            </td>
+            <td class="text-center">
+              <span class="badge badge-primary">
+                {{ paroisse.baptemes_count }}
+              </span>
+            </td>
+            <td class="text-center">
+              <span class="badge badge-info">
+                {{ paroisse.demandes_count }}
+              </span>
+            </td>
+            <td class="text-center">
+              <p-tag 
+                [value]="getPerformanceLabel(paroisse.demandes_count)"
+                [severity]="getPerformanceClass(paroisse.demandes_count) === 'excellent' ? 'success' : 
+                                     getPerformanceClass(paroisse.demandes_count) === 'good' ? 'info' :
+                                     getPerformanceClass(paroisse.demandes_count) === 'average' ? 'warning' : 'danger'">
+              </p-tag>
+            </td>
+            <td class="text-center">
+              <button pButton 
+                      icon="pi pi-eye" 
+                      class="p-button-rounded p-button-text p-button-info"
+                      pTooltip="Voir les détails"
+                      tooltipPosition="left"
+                      [routerLink]="['/diocese/paroisses', paroisse.id]"></button>
+              
+              <button pButton 
+                      icon="pi pi-chart-line" 
+                      class="p-button-rounded p-button-text p-button-success"
+                      pTooltip="Voir les statistiques"
+                      tooltipPosition="left"
+                      routerLink="/diocese/statistiques"></button>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center">
+              <p style="padding: 2rem;">Aucune donnée disponible</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <div class="insights-grid">
+      <p-card header="📊 Statistiques clés" styleClass="insights-card">
+        <ul class="insights-list">
+          <li>
+            <i class="pi pi-check-circle"></i>
+            <div>
+              <strong>Taux de réussite</strong>
+              <p>{{ ((stats.total_demandes - stats.demandes_en_attente) / stats.total_demandes * 100 | number:'1.1-1') }}% des demandes traitées</p>
+            </div>
+          </li>
+          <li>
+            <i class="pi pi-chart-line"></i>
+            <div>
+              <strong>Moyenne mensuelle</strong>
+              <p>{{ (stats.total_demandes / 12 | number:'1.0-0') }} demandes par mois</p>
+            </div>
+          </li>
+          <li>
+            <i class="pi pi-users"></i>
+            <div>
+              <strong>Moyenne par paroisse</strong>
+              <p>{{ (stats.total_baptemes / stats.total_paroisses | number:'1.0-0') }} baptêmes</p>
+            </div>
+          </li>
+        </ul>
+      </p-card>
+
+      <p-card header="🎯 Actions recommandées" styleClass="actions-card"> 
+        <ul class="actions-list">
+          <li *ngIf="stats.demandes_en_attente > 20">
+            <i class="pi pi-exclamation-triangle"></i>
+            <div>
+              <strong>Attention</strong>
+              <p>{{ stats.demandes_en_attente }} demandes en attente nécessitent un traitement</p>
+            </div>
+          </li>
+          <li>
+            <i class="pi pi-info-circle"></i>
+            <div>
+              <strong>Formation</strong>
+              <p>Organiser des sessions pour les paroisses moins actives</p>
+            </div>
+          </li>
+          <li>
+            <i class="pi pi-lightbulb"></i>
+            <div>
+              <strong>Communication</strong>
+              <p>Promouvoir la plateforme auprès des fidèles</p>
+            </div>
+          </li>
+        </ul>
+      </p-card>
+    </div>
+
+    <div class="quick-actions">
+      <h3>Actions rapides</h3>
+      <div class="actions-buttons">
+        <button pButton 
+                label="Statistiques" 
+                icon="pi pi-chart-pie" 
+                class="p-button-lg action-btn stats-btn" 
+                routerLink="/diocese/statistiques">
+        </button>
+        <button pButton 
+                label="Utilisateurs" 
+                icon="pi pi-users" 
+                class="p-button-lg action-btn users-btn" 
+                routerLink="/diocese/utilisateurs">
+        </button>
+        <button pButton 
+                label="Paroisses" 
+                icon="pi pi-building" 
+                class="p-button-lg action-btn parishes-btn" 
+                routerLink="/diocese/paroisses/liste">
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

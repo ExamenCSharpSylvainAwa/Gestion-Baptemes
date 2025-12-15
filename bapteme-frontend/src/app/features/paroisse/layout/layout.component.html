@@ -1,0 +1,107 @@
+<div class="layout-container">
+  <!-- Sidebar Desktop -->
+  <aside class="sidebar-desktop">
+    <div class="sidebar-header">
+      <i class="pi pi-bookmark logo-icon"></i>
+      <div>
+        <h2>Baptême SN</h2>
+        <p class="paroisse-name">{{ authService.currentUser()?.paroisse?.nom || 'Paroisse' }}</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+      <a *ngFor="let item of menuItems" 
+         [routerLink]="item.route" 
+         routerLinkActive="active"
+         class="menu-item">
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+        <p-badge *ngIf="item.badge && item.badge > 0" 
+                 [value]="item.badge.toString()" 
+                 severity="warning">
+        </p-badge>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <p-avatar [label]="(authService.currentUser()?.name || 'U').charAt(0).toUpperCase()"
+                  size="large"
+                  [style]="{'background-color':'#1e40af', 'color': '#ffffff'}">
+        </p-avatar>
+        <div class="user-details">
+          <p class="user-name">{{ authService.currentUser()?.name }}</p>
+          <p class="user-role">{{ getRoleLabel() }}</p>
+        </div>
+      </div>
+      <button pButton 
+              icon="pi pi-sign-out" 
+              label="Déconnexion"
+              (click)="logout()"
+              class="p-button-danger p-button-outlined w-full"></button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Bar Mobile -->
+    <header class="top-bar">
+      <button pButton 
+              icon="pi pi-bars" 
+              (click)="sidebarVisible = true"
+              class="p-button-text p-button-rounded menu-toggle"></button>
+      
+      <div class="top-bar-title">
+        <h1>Espace Paroisse</h1>
+        <p>{{ authService.currentUser()?.paroisse?.nom }}</p>
+      </div>
+
+      <div class="top-bar-actions">
+        <p-avatar [label]="(authService.currentUser()?.name || 'U').charAt(0).toUpperCase()"
+                  [style]="{'background-color':'#1e40af', 'color': '#ffffff'}">
+        </p-avatar>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="content-area">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- Sidebar Mobile -->
+  <p-sidebar [(visible)]="sidebarVisible" [baseZIndex]="10000">
+    <ng-template pTemplate="header">
+      <div class="sidebar-header">
+        <i class="pi pi-bookmark logo-icon"></i>
+        <div>
+          <h2>Baptême SN</h2>
+          <p class="paroisse-name">{{ authService.currentUser()?.paroisse?.nom }}</p>
+        </div>
+      </div>
+    </ng-template>
+
+    <nav class="sidebar-menu">
+      <a *ngFor="let item of menuItems" 
+         [routerLink]="item.route" 
+         routerLinkActive="active"
+         (click)="sidebarVisible = false"
+         class="menu-item">
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+        <p-badge *ngIf="item.badge && item.badge > 0" 
+                 [value]="item.badge.toString()" 
+                 severity="warning">
+        </p-badge>
+      </a>
+    </nav>
+
+    <ng-template pTemplate="footer">
+      <button pButton 
+              icon="pi pi-sign-out" 
+              label="Déconnexion"
+              (click)="logout()"
+              class="p-button-danger w-full"></button>
+    </ng-template>
+  </p-sidebar>
+</div>

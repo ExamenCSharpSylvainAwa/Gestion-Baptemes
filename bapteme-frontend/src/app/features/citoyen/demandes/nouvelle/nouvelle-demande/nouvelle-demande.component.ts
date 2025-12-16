@@ -26,7 +26,7 @@ import { Paroisse } from '../../../../../core/models/user.model';
     ButtonModule,
     DividerModule,
     MessageModule
-],
+  ],
   templateUrl: './nouvelle-demande.component.html',
   styleUrls: ['./nouvelle-demande.component.scss']
 })
@@ -150,7 +150,61 @@ export class NouvelleDemandeComponent implements OnInit {
     });
   }
 
-  formatDate(date: Date): string {
+  /**
+   * Formate une date en string YYYY-MM-DD
+   * Gère différents types d'entrée (Date, string, etc.)
+   */
+  formatDate(date: any): string | null {
+    // Si date est null ou undefined
+    if (!date) {
+      return null;
+    }
+
+    // Si c'est déjà une string au format correct, la retourner
+    if (typeof date === 'string') {
+      // Vérifier si c'est déjà au format YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return date;
+      }
+      // Sinon, essayer de la convertir
+      try {
+        const dateObj = new Date(date);
+        if (!isNaN(dateObj.getTime())) {
+          return this.formatDateObject(dateObj);
+        }
+      } catch (e) {
+        console.error('Erreur lors de la conversion de la date string:', e);
+        return null;
+      }
+    }
+
+    // Si c'est un objet Date
+    if (date instanceof Date) {
+      if (!isNaN(date.getTime())) {
+        return this.formatDateObject(date);
+      } else {
+        console.error('Date invalide');
+        return null;
+      }
+    }
+
+    // Essayer de convertir en Date pour d'autres types
+    try {
+      const dateObj = new Date(date);
+      if (!isNaN(dateObj.getTime())) {
+        return this.formatDateObject(dateObj);
+      }
+    } catch (e) {
+      console.error('Erreur lors du formatage de la date:', e);
+    }
+
+    return null;
+  }
+
+  /**
+   * Formate un objet Date en string YYYY-MM-DD
+   */
+  private formatDateObject(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');

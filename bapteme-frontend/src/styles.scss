@@ -4,20 +4,37 @@
 @import "primeng/resources/primeng.min.css";
 @import "primeicons/primeicons.css";
 
-/* Variables globales */
+/* Variables globales - Couleurs Liturgiques de l'Église Catholique */
 :root {
-  --primary-color: #1e40af;
-  --secondary-color: #d97706;
-  --success-color: #059669;
-  --danger-color: #dc2626;
-  --warning-color: #f59e0b;
-  --info-color: #0ea5e9;
+  /* Couleurs Liturgiques Principales */
+  --liturgical-white: #FFFFFF;      /* Blanc - Joie, pureté, gloire (Noël, Pâques) */
+  --liturgical-gold: #D4AF37;       /* Or - Gloire divine, grandes solennités */
+  --liturgical-red: #C41E3A;        /* Rouge - Esprit Saint, martyrs (Pentecôte) */
+  --liturgical-green: #2D5016;      /* Vert - Espérance, temps ordinaire */
+  --liturgical-purple: #6A0DAD;     /* Violet - Pénitence (Avent, Carême) */
+  --liturgical-rose: #E8B4B8;       /* Rose - Joie dans l'attente */
+  --liturgical-blue: #003366;       /* Bleu - Fêtes mariales */
   
+  /* Couleurs Primaires (basées sur les couleurs liturgiques) */
+  --primary-color: #6A0DAD;         /* Violet liturgique */
+  --primary-light: #8B3FBF;         /* Violet plus clair */
+  --secondary-color: #D4AF37;       /* Or liturgique */
+  --success-color: #2D5016;         /* Vert liturgique */
+  --danger-color: #C41E3A;          /* Rouge liturgique */
+  --warning-color: #D4AF37;         /* Or */
+  --info-color: #003366;            /* Bleu marial */
+  
+  /* Couleurs de texte */
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
+  --text-light: #FFFFFF;
+  
+  /* Backgrounds */
   --background: #f9fafb;
   --surface: #ffffff;
+  --surface-alt: #f3f4f6;
   
+  /* Autres */
   --border-radius: 0.5rem;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -61,6 +78,21 @@ body {
 .mb-2 { margin-bottom: 1rem; }
 .mb-3 { margin-bottom: 1.5rem; }
 
+/* Classes de couleurs liturgiques */
+.bg-liturgical-white { background-color: var(--liturgical-white); }
+.bg-liturgical-gold { background-color: var(--liturgical-gold); }
+.bg-liturgical-red { background-color: var(--liturgical-red); }
+.bg-liturgical-green { background-color: var(--liturgical-green); }
+.bg-liturgical-purple { background-color: var(--liturgical-purple); }
+.bg-liturgical-rose { background-color: var(--liturgical-rose); }
+.bg-liturgical-blue { background-color: var(--liturgical-blue); }
+
+.text-liturgical-gold { color: var(--liturgical-gold); }
+.text-liturgical-red { color: var(--liturgical-red); }
+.text-liturgical-green { color: var(--liturgical-green); }
+.text-liturgical-purple { color: var(--liturgical-purple); }
+.text-liturgical-blue { color: var(--liturgical-blue); }
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {
@@ -80,6 +112,8 @@ body {
 .fade-in {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* ==================== BOUTONS PRIMENG ==================== */
 .p-button {
   font-family: inherit;
   font-weight: 600;
@@ -97,7 +131,7 @@ body {
   }
   
   &:focus {
-    box-shadow: 0 0 0 0.2rem rgba(30, 64, 175, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(106, 13, 173, 0.25);
   }
 }
 
@@ -112,25 +146,78 @@ body {
   font-size: 1.125rem;
 }
 
-/* Bouton primaire */
+/* Bouton primaire - Violet liturgique */
 .p-button-primary {
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #6A0DAD 0%, #8B3FBF 100%);
   border: none;
   color: white;
   
   &:hover {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #560A8F 0%, #6A0DAD 100%);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(106, 13, 173, 0.3);
   }
 }
 
-/* Bouton success */
+/* Bouton success - Vert liturgique */
 .p-button-success {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  background: linear-gradient(135deg, #2D5016 0%, #3A6B1E 100%);
   border: none;
   color: white;
   
   &:hover {
-    background: linear-gradient(135deg, #047857 0%, #059669 100%);
+    background: linear-gradient(135deg, #1F3810 0%, #2D5016 100%);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(45, 80, 22, 0.3);
+  }
+}
+
+/* Bouton danger - Rouge liturgique */
+.p-button-danger {
+  background: linear-gradient(135deg, #C41E3A 0%, #D63447 100%);
+  border: none;
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #A01830 0%, #C41E3A 100%);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(196, 30, 58, 0.3);
+  }
+}
+
+/* Bouton warning - Or liturgique */
+.p-button-warning {
+  background: linear-gradient(135deg, #D4AF37 0%, #E5C158 100%);
+  border: none;
+  color: #1f2937;
+  
+  &:hover {
+    background: linear-gradient(135deg, #B8972E 0%, #D4AF37 100%);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.3);
+  }
+}
+
+/* Bouton info - Bleu marial */
+.p-button-info {
+  background: linear-gradient(135deg, #003366 0%, #004488 100%);
+  border: none;
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #002244 0%, #003366 100%);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 51, 102, 0.3);
   }
 }
 
@@ -140,11 +227,38 @@ body {
   border: 2px solid currentColor;
   
   &.p-button-primary {
-    border-color: #1e40af;
-    color: #1e40af;
+    border-color: #6A0DAD;
+    color: #6A0DAD;
     
     &:hover {
-      background: rgba(30, 64, 175, 0.1);
+      background: rgba(106, 13, 173, 0.1);
+    }
+  }
+  
+  &.p-button-success {
+    border-color: #2D5016;
+    color: #2D5016;
+    
+    &:hover {
+      background: rgba(45, 80, 22, 0.1);
+    }
+  }
+  
+  &.p-button-danger {
+    border-color: #C41E3A;
+    color: #C41E3A;
+    
+    &:hover {
+      background: rgba(196, 30, 58, 0.1);
+    }
+  }
+  
+  &.p-button-warning {
+    border-color: #D4AF37;
+    color: #D4AF37;
+    
+    &:hover {
+      background: rgba(212, 175, 55, 0.1);
     }
   }
 }
@@ -169,7 +283,7 @@ body {
   
   &:hover {
     background: white;
-    color: #1e40af;
+    color: #6A0DAD;
     border-color: white;
   }
 }

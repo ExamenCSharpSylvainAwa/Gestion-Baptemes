@@ -98,24 +98,30 @@
         animation: iconFloat 3s infinite ease-in-out;
       }
 
+      // Violet liturgique pour le total (couleur principale)
       &.total {
-        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        background: linear-gradient(135deg, var(--liturgical-purple) 0%, var(--primary-light) 100%);
+        box-shadow: 0 4px 12px rgba(106, 13, 173, 0.3);
         
         i {
           animation: iconFloat 3s infinite ease-in-out, iconRotate 4s infinite ease-in-out;
         }
       }
 
+      // Or liturgique pour "En cours" (richesse, importance)
       &.progress {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        background: linear-gradient(135deg, var(--liturgical-gold) 0%, #E5C158 100%);
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         
         i {
           animation: iconFloat 3s infinite ease-in-out 0.3s, iconPulseScale 2s infinite ease-in-out;
         }
       }
 
+      // Vert liturgique pour "Prêts" (espérance, accomplissement)
       &.ready {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: linear-gradient(135deg, var(--liturgical-green) 0%, #3A6B1E 100%);
+        box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
         
         i {
           animation: iconFloat 3s infinite ease-in-out 0.6s, iconBounce 1.5s infinite ease-in-out;
@@ -151,6 +157,19 @@
 
   .text-center {
     text-align: center;
+  }
+
+  // Lien dans le message vide - couleur violette liturgique
+  a {
+    color: var(--liturgical-purple);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: var(--primary-light);
+      text-decoration: underline;
+    }
   }
 
   // Animations

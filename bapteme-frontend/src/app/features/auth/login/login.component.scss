@@ -3,20 +3,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #6A0DAD 0%, #8B3FBF 100%); // Violet liturgique
   padding: 2rem 1rem;
+  position: relative;
+  
+  // Effet de croix en arrière-plan
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M45 0 h10 v45 h45 v10 h-45 v45 h-10 v-45 h-45 v-10 h45 z' fill='%23ffffff' opacity='0.05'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.3;
+    pointer-events: none;
+  }
 }
 
 .auth-container {
   width: 100%;
   max-width: 480px;
+  position: relative;
+  z-index: 1;
 }
 
 .auth-card {
   background: white;
   border-radius: 1.5rem;
   padding: 3rem 2.5rem;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 25px 70px rgba(106, 13, 173, 0.35);
+  border-top: 4px solid #D4AF37; // Bordure dorée
   
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;
@@ -30,9 +50,10 @@
 
   .logo-icon {
     font-size: 3.5rem;
-    color: #1e40af;
+    color: #6A0DAD; // Violet liturgique
     margin-bottom: 1.25rem;
     display: block;
+    filter: drop-shadow(0 4px 8px rgba(106, 13, 173, 0.2));
   }
 
   h1 {
@@ -73,7 +94,7 @@
           left: 1rem;
           top: 50%;
           transform: translateY(-50%);
-          color: #9ca3af;
+          color: #8B3FBF; // Violet clair liturgique
           z-index: 1;
         }
 
@@ -95,8 +116,8 @@
           transition: all 0.3s;
 
           &:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #6A0DAD; // Violet liturgique
+            box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.1);
             outline: none;
           }
 
@@ -121,8 +142,8 @@
         transition: all 0.3s;
 
         &:focus {
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          border-color: #6A0DAD; // Violet liturgique
+          box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.1);
         }
 
         &::placeholder {
@@ -140,8 +161,8 @@
         transition: all 0.3s;
 
         &:focus {
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          border-color: #6A0DAD; // Violet liturgique
+          box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.1);
         }
       }
     }
@@ -150,7 +171,7 @@
       display: block;
       margin-top: 0.5rem;
       font-size: 0.875rem;
-      color: #dc2626;
+      color: #C41E3A; // Rouge liturgique
       font-weight: 500;
     }
   }
@@ -176,8 +197,8 @@
           height: 1.25rem;
 
           &.p-highlight {
-            background: #3b82f6;
-            border-color: #3b82f6;
+            background: #6A0DAD; // Violet liturgique
+            border-color: #6A0DAD;
           }
         }
       }
@@ -191,14 +212,14 @@
     }
 
     .forgot-link {
-      color: #3b82f6;
+      color: #6A0DAD; // Violet liturgique
       text-decoration: none;
       font-size: 0.9rem;
       font-weight: 500;
       transition: color 0.2s;
 
       &:hover {
-        color: #1e40af;
+        color: #560A8F; // Violet plus foncé
         text-decoration: underline;
       }
     }
@@ -211,14 +232,21 @@
     font-weight: 600;
     border-radius: 0.75rem;
     transition: all 0.3s;
+    background: linear-gradient(135deg, #6A0DAD 0%, #8B3FBF 100%); // Violet liturgique
+    border: none;
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 10px 25px rgba(106, 13, 173, 0.3);
+      background: linear-gradient(135deg, #560A8F 0%, #6A0DAD 100%);
     }
 
     &:active:not(:disabled) {
       transform: translateY(0);
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(106, 13, 173, 0.3);
     }
   }
 }
@@ -236,13 +264,13 @@
   }
 
   .link-primary {
-    color: #3b82f6;
+    color: #6A0DAD; // Violet liturgique
     text-decoration: none;
     font-weight: 600;
     transition: color 0.2s;
 
     &:hover {
-      color: #1e40af;
+      color: #560A8F; // Violet plus foncé
       text-decoration: underline;
     }
   }
@@ -264,7 +292,7 @@
     border-radius: 0.5rem;
 
     &:hover {
-      color: #1e40af;
+      color: #6A0DAD; // Violet liturgique
       background: #f3f4f6;
     }
 

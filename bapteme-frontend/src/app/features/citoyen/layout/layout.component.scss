@@ -4,17 +4,18 @@
   background: var(--background);
 }
 
-// Sidebar Desktop
+// ==================== SIDEBAR DESKTOP ====================
 .sidebar-desktop {
   width: 280px;
-  background: white;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%);
+  box-shadow: 2px 0 12px rgba(106, 13, 173, 0.08);
   display: flex;
   flex-direction: column;
   position: fixed;
   height: 100vh;
   overflow-y: auto;
   z-index: 100;
+  border-right: 1px solid rgba(106, 13, 173, 0.1);
 
   @media (max-width: 768px) {
     display: none;
@@ -23,24 +24,57 @@
 
 .sidebar-header {
   padding: 2rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 2px solid var(--liturgical-gold);
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  background: linear-gradient(135deg, var(--liturgical-purple) 0%, var(--primary-light) 100%);
+  position: relative;
+  overflow: hidden;
+
+  // Effet de brillance liturgique
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+    animation: shimmer 3s infinite;
+  }
 
   .logo-icon {
-    font-size: 2rem;
-    color: var(--primary-color);
+    font-size: 2.5rem;
+    color: var(--liturgical-gold);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    animation: pulse 2s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
   }
 
   h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--liturgical-white);
     margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
   }
 }
 
+@keyframes shimmer {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(180deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+// ==================== MENU SIDEBAR ====================
 .sidebar-menu {
   flex: 1;
   padding: 1rem 0;
@@ -53,36 +87,88 @@
     padding: 1rem 1.5rem;
     color: var(--text-secondary);
     text-decoration: none;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
+    position: relative;
+    margin: 0.25rem 0.5rem;
+    border-radius: 0.75rem;
 
     i {
       font-size: 1.25rem;
+      transition: transform 0.3s ease;
     }
 
+    // Effet au survol - Violet liturgique
     &:hover {
-      background: #f3f4f6;
-      color: var(--primary-color);
+      background: linear-gradient(135deg, rgba(106, 13, 173, 0.08) 0%, rgba(139, 63, 191, 0.08) 100%);
+      color: var(--liturgical-purple);
+      transform: translateX(4px);
+
+      i {
+        transform: scale(1.15);
+        color: var(--liturgical-gold);
+      }
     }
 
+    // État actif - Or liturgique
     &.active {
-      background: #eff6ff;
-      color: var(--primary-color);
-      border-right: 3px solid var(--primary-color);
+      background: linear-gradient(135deg, var(--liturgical-purple) 0%, var(--primary-light) 100%);
+      color: var(--liturgical-white);
+      border-left: 4px solid var(--liturgical-gold);
       font-weight: 600;
+      box-shadow: 0 4px 12px rgba(106, 13, 173, 0.3);
+
+      i {
+        color: var(--liturgical-gold);
+        transform: scale(1.1);
+      }
+
+      // Effet de lueur
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.75rem;
+        background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+        animation: slide 2s infinite;
+      }
     }
   }
 }
 
+@keyframes slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+// ==================== FOOTER SIDEBAR ====================
 .sidebar-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 2px solid var(--liturgical-gold);
+  background: linear-gradient(180deg, transparent 0%, rgba(106, 13, 173, 0.03) 100%);
 
   .user-info {
     display: flex;
     align-items: center;
     gap: 1rem;
     margin-bottom: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(106, 13, 173, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(106, 13, 173, 0.15);
+      transform: translateY(-2px);
+    }
+
+    ::ng-deep .p-avatar {
+      background: linear-gradient(135deg, var(--liturgical-purple) 0%, var(--primary-light) 100%) !important;
+      border: 2px solid var(--liturgical-gold);
+      box-shadow: 0 2px 8px rgba(106, 13, 173, 0.3);
+    }
   }
 
   .user-details {
@@ -92,17 +178,34 @@
       font-weight: 600;
       color: var(--text-primary);
       margin: 0 0 0.25rem 0;
+      font-size: 0.95rem;
     }
 
     .user-role {
       font-size: 0.875rem;
-      color: var(--text-secondary);
+      color: var(--liturgical-purple);
       margin: 0;
+      font-weight: 500;
+    }
+  }
+
+  // Bouton déconnexion avec style liturgique
+  ::ng-deep .p-button-danger.p-button-outlined {
+    border-color: var(--liturgical-red);
+    color: var(--liturgical-red);
+    background: transparent;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: var(--liturgical-red);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(196, 30, 58, 0.3);
     }
   }
 }
 
-// Main Content
+// ==================== MAIN CONTENT ====================
 .main-content {
   flex: 1;
   margin-left: 280px;
@@ -114,46 +217,166 @@
   }
 }
 
+// ==================== TOP BAR ====================
 .top-bar {
-  background: white;
+  background: linear-gradient(135deg, var(--liturgical-white) 0%, rgba(106, 13, 173, 0.02) 100%);
   padding: 1rem 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(106, 13, 173, 0.1);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 50;
+  border-bottom: 2px solid var(--liturgical-gold);
 
   .menu-toggle {
     display: none;
 
     @media (max-width: 768px) {
       display: flex;
+      color: var(--liturgical-purple);
+      
+      &:hover {
+        background: rgba(106, 13, 173, 0.1);
+      }
     }
   }
 
   .page-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--liturgical-purple) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin: 0;
+    text-shadow: 0 2px 4px rgba(106, 13, 173, 0.1);
 
     @media (max-width: 768px) {
       font-size: 1.25rem;
     }
   }
+
+  .top-bar-actions {
+    ::ng-deep .p-avatar {
+      background: linear-gradient(135deg, var(--liturgical-purple) 0%, var(--primary-light) 100%) !important;
+      border: 2px solid var(--liturgical-gold);
+      box-shadow: 0 2px 8px rgba(106, 13, 173, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);
+      }
+    }
+  }
 }
 
+// ==================== CONTENT AREA ====================
 .content-area {
   flex: 1;
   padding: 2rem;
+  background: var(--background);
+  position: relative;
+
+  // Effet de fond liturgique subtil
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 280px;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(106, 13, 173, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+
+    @media (max-width: 768px) {
+      left: 0;
+    }
+  }
+
+  // Assurer que le contenu est au-dessus du fond
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 
   @media (max-width: 768px) {
     padding: 1rem;
   }
 }
 
+// ==================== UTILITIES ====================
 .w-full {
   width: 100%;
+}
+
+// ==================== SCROLLBAR PERSONNALISÉE ====================
+.sidebar-desktop::-webkit-scrollbar,
+.sidebar-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-desktop::-webkit-scrollbar-track,
+.sidebar-menu::-webkit-scrollbar-track {
+  background: rgba(106, 13, 173, 0.05);
+}
+
+.sidebar-desktop::-webkit-scrollbar-thumb,
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: var(--liturgical-gold);
+  border-radius: 10px;
+  
+  &:hover {
+    background: var(--liturgical-purple);
+  }
+}
+
+// ==================== ANIMATIONS D'ENTRÉE ====================
+.sidebar-desktop {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+.main-content {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// ==================== RESPONSIVE ====================
+@media (max-width: 768px) {
+  .sidebar-header {
+    padding: 1.5rem 1rem;
+    
+    .logo-icon {
+      font-size: 2rem;
+    }
+    
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
 }

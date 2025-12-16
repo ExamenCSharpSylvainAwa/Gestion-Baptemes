@@ -1,9 +1,10 @@
-// Variables
-$primary: #1e40af;
-$primary-light: #3b82f6;
-$secondary: #d97706;
-$success: #059669;
-$success-light: #10b981;
+// Variables - Couleurs Liturgiques de l'Église Catholique
+$primary: #6A0DAD;           // Violet liturgique
+$primary-light: #8B3FBF;     // Violet clair
+$secondary: #D4AF37;         // Or liturgique
+$success: #2D5016;           // Vert liturgique
+$success-light: #3A6B1E;     // Vert clair
+$red-liturgical: #C41E3A;    // Rouge liturgique
 
 .home-page {
   min-height: 100vh;
@@ -26,6 +27,24 @@ $success-light: #10b981;
   min-height: 600px;
   display: flex;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+  
+  // Effet de croix en arrière-plan
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M45 0 h10 v45 h45 v10 h-45 v45 h-10 v-45 h-45 v-10 h45 z' fill='%23ffffff' opacity='0.05'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+    pointer-events: none;
+  }
   
   @media (max-width: 768px) {
     padding: 3rem 0;
@@ -38,6 +57,8 @@ $success-light: #10b981;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
   align-items: center;
+  position: relative;
+  z-index: 1;
   
   @media (max-width: 968px) {
     grid-template-columns: 1fr;
@@ -63,7 +84,7 @@ $success-light: #10b981;
 }
 
 .gradient-text {
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+  background: linear-gradient(90deg, $secondary 0%, #E5C158 100%); // Dégradé or
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -92,9 +113,64 @@ $success-light: #10b981;
       width: 100%;
     }
   }
+  
+  // Style des boutons PrimeNG dans le hero
+  ::ng-deep {
+    .p-button {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
+    
+    .p-button-primary {
+      background: linear-gradient(135deg, $secondary 0%, #E5C158 100%); // Or liturgique
+      border: none;
+      color: #1f2937;
+      
+      &:hover {
+        background: linear-gradient(135deg, #E5C158 0%, #B8972E 100%);
+      }
+    }
+    
+    .p-button-outlined {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid white;
+      color: white;
+      backdrop-filter: blur(10px);
+      
+      &:hover {
+        background: white;
+        color: $primary;
+        border-color: white;
+      }
+    }
+    
+    .p-button-icon-left {
+      margin-right: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .p-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
 }
 
-// Hero Illustration
+// Hero Illustration avec image de baptême
 .hero-illustration {
   display: flex;
   align-items: center;
@@ -106,18 +182,27 @@ $success-light: #10b981;
   }
 }
 
-.illustration-container {
+.baptism-image-container {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 400px;
+  height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
   
-  .main-icon {
-    font-size: 10rem;
-    color: rgba(255, 255, 255, 0.2);
-    animation: pulse 3s ease-in-out infinite;
+  @media (max-width: 768px) {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .baptism-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: gentle-pulse 4s ease-in-out infinite;
+    border: 4px solid rgba(212, 175, 55, 0.5); // Bordure dorée
   }
   
   .floating-icons {
@@ -127,42 +212,41 @@ $success-light: #10b981;
     
     i {
       position: absolute;
-      font-size: 3rem;
+      font-size: 2.5rem;
       color: white;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 1rem;
+      background: rgba(106, 13, 173, 0.9); // Violet liturgique
+      padding: 0.8rem;
       border-radius: 50%;
       backdrop-filter: blur(10px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
     
     .icon-1 {
-      top: 0;
-      right: 20%;
+      top: -10px;
+      right: 15%;
       animation: float 3s ease-in-out infinite;
     }
     
     .icon-2 {
-      bottom: 10%;
-      left: 10%;
+      bottom: 5%;
+      left: -10px;
       animation: float 3s ease-in-out infinite 1s;
     }
     
     .icon-3 {
-      top: 50%;
-      right: 0;
+      top: 45%;
+      right: -10px;
       animation: float 3s ease-in-out infinite 2s;
     }
   }
 }
 
-@keyframes pulse {
+@keyframes gentle-pulse {
   0%, 100% {
     transform: scale(1);
-    opacity: 0.2;
   }
   50% {
-    transform: scale(1.05);
-    opacity: 0.3;
+    transform: scale(1.02);
   }
 }
 
@@ -213,6 +297,7 @@ $success-light: #10b981;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: all 0.3s ease;
+  border-top: 3px solid $primary; // Bordure violette
   
   h3 {
     font-size: 1.25rem;
@@ -229,7 +314,8 @@ $success-light: #10b981;
   
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 15px -3px rgba(106, 13, 173, 0.2);
+    border-top-color: $secondary; // Bordure dorée au hover
   }
 }
 
@@ -287,7 +373,7 @@ $success-light: #10b981;
   width: 3rem;
   height: 3rem;
   margin: 0 auto 1rem;
-  background: $secondary;
+  background: $secondary; // Or liturgique
   color: white;
   border-radius: 50%;
   display: flex;
@@ -295,111 +381,38 @@ $success-light: #10b981;
   justify-content: center;
   font-size: 1.5rem;
   font-weight: 700;
+  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
 }
 
 // CTA Section
 .cta-section {
   padding: 5rem 0;
-  background: linear-gradient(135deg, $success 0%, $success-light 100%);
+  background: linear-gradient(135deg, $success 0%, $success-light 100%); // Vert liturgique
   color: white;
+  position: relative;
+  overflow: hidden;
+  
+  // Motif de fond subtil
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -100px;
+    transform: translateY(-50%);
+    width: 500px;
+    height: 500px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='%23ffffff' stroke-width='0.5' opacity='0.1'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23ffffff' stroke-width='0.5' opacity='0.1'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='%23ffffff' stroke-width='0.5' opacity='0.1'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.3;
+    pointer-events: none;
+  }
 }
 
 .cta-content {
   text-align: center;
-  
-  h2 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
-    
-    @media (max-width: 768px) {
-      font-size: 2rem;
-    }
-  }
-  
-  p {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
-    opacity: 0.95;
-  }
-  
-  ::ng-deep button {
-    @media (max-width: 768px) {
-      width: 100%;
-      max-width: 400px;
-    }
-  }
-  .hero-buttons {
-  display: flex;
-  gap: 1rem;
-  
-  @media (max-width: 968px) {
-    justify-content: center;
-  }
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
-  
-  // Style des boutons PrimeNG dans le hero
-  ::ng-deep {
-    .p-button {
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      border-radius: 0.75rem;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      
-      &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      }
-      
-      &:active {
-        transform: translateY(0);
-      }
-    }
-    
-    .p-button-primary {
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      border: none;
-      color: #1f2937;
-      
-      &:hover {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      }
-    }
-    
-    .p-button-outlined {
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid white;
-      color: white;
-      backdrop-filter: blur(10px);
-      
-      &:hover {
-        background: white;
-        color: #1e40af;
-        border-color: white;
-      }
-    }
-    
-    .p-button-icon-left {
-      margin-right: 0.5rem;
-    }
-    
-    @media (max-width: 768px) {
-      .p-button {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  }
-}
-
-// Bouton CTA
-.cta-content {
-  text-align: center;
+  position: relative;
+  z-index: 1;
   
   h2 {
     font-size: 2.5rem;
@@ -420,7 +433,7 @@ $success-light: #10b981;
   ::ng-deep {
     .p-button-success {
       background: white;
-      color: #059669;
+      color: $success; // Vert liturgique
       border: none;
       padding: 1rem 2rem;
       font-size: 1.1rem;
@@ -432,6 +445,7 @@ $success-light: #10b981;
         background: #f9fafb;
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        color: darken($success, 10%);
       }
       
       @media (max-width: 768px) {
@@ -440,7 +454,4 @@ $success-light: #10b981;
       }
     }
   }
-}
-
-
 }

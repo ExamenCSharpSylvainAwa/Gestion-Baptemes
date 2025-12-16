@@ -167,9 +167,6 @@ export class DashboardComponent implements OnInit {
   updateChartWithRealData(baptemesParMois: any): void {
     console.log('📊 Données reçues baptemesParMois:', baptemesParMois);
     
-    // baptemesParMois est un objet avec les mois comme clés: { "1": 12, "2": 19, ... }
-    // ou un tableau: [12, 19, 15, ...]
-    
     const monthlyData = new Array(12).fill(0);
     
     if (Array.isArray(baptemesParMois)) {
@@ -191,12 +188,25 @@ export class DashboardComponent implements OnInit {
 
     console.log('📈 Données graphique mises à jour:', monthlyData);
 
-    // Mettre à jour les données du graphique
+    // ⚡ CORRECTION: Créer un NOUVEL objet pour forcer la détection de changement Angular
     this.chartData = {
-      ...this.chartData,
+      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
       datasets: [{
-        ...this.chartData.datasets[0],
-        data: monthlyData
+        label: 'Baptêmes',
+        data: monthlyData, // ✅ Utilisation des vraies données
+        backgroundColor: 'rgba(30, 64, 175, 0.1)',
+        borderColor: 'rgba(30, 64, 175, 1)',
+        borderWidth: 3,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgba(30, 64, 175, 1)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        pointHoverBackgroundColor: 'rgba(30, 64, 175, 1)',
+        pointHoverBorderColor: '#fff',
+        pointHoverBorderWidth: 2
       }]
     };
   }

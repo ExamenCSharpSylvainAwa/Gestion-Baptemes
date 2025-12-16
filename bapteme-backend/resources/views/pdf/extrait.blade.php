@@ -33,6 +33,10 @@
             margin-top: 50px;
             text-align: right;
         }
+        .signature-box {
+            margin-top: 60px;
+            text-align: center;
+        }
         .footer {
             position: absolute;
             bottom: 20mm;
@@ -107,14 +111,19 @@
 
 <div class="signature">
     <p>Le {{ $date_delivrance }}</p>
-    <p>Certifié conforme au registre et délivré par moi soussigné</p>
-    <p>_____________________________</p>
-    <p>Le Curé de la Paroisse</p>
+    <p><strong>Certifié conforme au registre et délivré par moi soussigné</strong></p>
+
+    <div class="signature-box">
+        <p style="margin-top: 40px; border-top: 2px solid #000; display: inline-block; padding-top: 5px; min-width: 250px;">
+            {{ $nom_responsable }}
+        </p>
+
+        <p style="font-style: italic;">Curé de la Paroisse {{ $paroisse->nom }}</p>
+    </div>
 </div>
 
 <div class="qr-code">
     <p><strong>N° Unique :</strong> {{ $numero_unique }}</p>
-    {{-- Le QR code est déjà au format data:image/svg+xml;base64,... --}}
     <img src="{{ $qr_code }}" alt="QR Code de vérification">
     <p style="font-size: 9pt; margin-top: 5px;">
         Vérifiable sur : {{ $url_verification }}
